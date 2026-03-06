@@ -157,7 +157,7 @@ export function DispensingControl({ /* props */ }: DispensingControlProps) {
         setMedsToDispense(list);
     };
 
-    const handleMedicationChange = (index: number, field: string, value: string) => {
+    const handleMedicationChange = (index: number, field: string, value: string | boolean) => {
         const list = [...medsToDispense];
         (list[index] as any)[field] = value;
 
@@ -188,7 +188,7 @@ export function DispensingControl({ /* props */ }: DispensingControlProps) {
         // For now, reset and close dialog
         setIsDispenseDialogOpen(false);
         setSelectedPatientId("");
-        setMedsToDispense([{ medicationId: "", quantity: "", type: "pills", pillsPerStrip: "" }]);
+        setMedsToDispense([{ medicationId: "", quantity: "", type: "pills", pillsPerStrip: "", medicationNameInput: "", showSuggestions: false }]);
     };
 
 

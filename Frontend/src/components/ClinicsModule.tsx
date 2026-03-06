@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Badge } from "./ui/badge";
 import { DataTable } from "./ui/data-table";
 import { AddPatientToClinicForm } from "./AddPatientToClinicForm";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { 
   Heart, 
   Bone, 

@@ -1,16 +1,30 @@
 import { useId, useState } from "react";
 
-export default function ValueSelector() {
-    const [value, setValue] = useState("select");
-    const groupName = useId(); // unique per component instance
+type ValueSelectorProps = {
+  value?: string;
+  onValueChange?: (v: string) => void;
+  className?: string;
+  groupName?: string;
+};
+
+export default function ValueSelector({ value, onValueChange, className, groupName }: ValueSelectorProps) {
+    const [internalValue, setInternalValue] = useState("select");
+    const id = useId();
+    const name = groupName || id;
+    const selected = value ?? internalValue;
+
+    const setValue = (v: string) => {
+        if (onValueChange) onValueChange(v);
+        else setInternalValue(v);
+    };
 
     return (
-        <div style={groupStyle}>
+        <div style={groupStyle} className={className}>
             <label style={labelStyle}>
                 <input
                     type="radio"
-                    name={groupName}
-                    checked={value === "select"}
+                    name={name}
+                    checked={selected === "select"}
                     onChange={() => setValue("select")}
                     style={radioStyle}
                 />
@@ -20,8 +34,8 @@ export default function ValueSelector() {
             <label style={labelStyle}>
                 <input
                     type="radio"
-                    name={groupName}
-                    checked={value === "-"}
+                    name={name}
+                    checked={selected === "-"}
                     onChange={() => setValue("-")}
                     style={radioStyle}
                 />
@@ -31,8 +45,8 @@ export default function ValueSelector() {
             <label style={labelStyle}>
                 <input
                     type="radio"
-                    name={groupName}
-                    checked={value === "+"}
+                    name={name}
+                    checked={selected === "+"}
                     onChange={() => setValue("+")}
                     style={radioStyle}
                 />

@@ -230,17 +230,17 @@ export function AddAdultPatientForm({ open, onOpenChange, onSubmit, initialData 
       if (weightKg > 0 && heightCm > 0) {
         const heightM = heightCm / 100;
         const bmi = (weightKg / (heightM * heightM)).toFixed(1);
-        setFormData(prev => ({ ...prev, bmi }));
+        setFormData((prev: FormData) => ({ ...prev, bmi }));
       }
     }
   }, [formData.weight, formData.height]);
 
   const handleCheckboxChange = (field: keyof FormData, checked: boolean) => {
-    setFormData(prev => ({ ...prev, [field]: checked }));
+    setFormData((prev: FormData) => ({ ...prev, [field]: checked }));
   };
 
   const handleArrayCheckboxChange = (field: keyof FormData, value: string, checked: boolean) => {
-    setFormData(prev => {
+    setFormData((prev: FormData) => {
       const currentArray = prev[field] as string[];
       if (checked) {
         return { ...prev, [field]: [...currentArray, value] };
@@ -256,7 +256,7 @@ export function AddAdultPatientForm({ open, onOpenChange, onSubmit, initialData 
   };
 
   const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev: FormData) => ({ ...prev, [field]: value }));
   };
 
   const addComplaint = (complaint: string) => {

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { DataTable } from "./ui/data-table";
 import { AddAdultPatientForm } from "./AddAdultPatientForm";
-import { toast } from "sonner@2.0.3";
+import { toast } from "sonner";
 import { 
   UserPlus,
   Users
