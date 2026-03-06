@@ -1,0 +1,33 @@
+const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [patientSearchQuery, setPatientSearchQuery] = useState("");
+
+    // State for individual lab statuses
+    const [bloodStatus, setBloodStatus] = useState<LabStatusType>(null);
+    const [urineStatus, setUrineStatus] = useState<LabStatusType>(null);
+    const [stoolStatus, setStoolStatus] = useState<LabStatusType>(null);
+    const [crUreaStatus, setCrUreaStatus] = useState<LabStatusType>(null);
+
+    const labTypes = [
+        { id: "blood", name: "Blood", status: bloodStatus, setStatus: setBloodStatus },
+        { id: "urine", name: "Urine", status: urineStatus, setStatus: setUrineStatus },
+        { id: "stool", name: "Stool", status: stoolStatus, setStatus: setStoolStatus },
+        { id: "cr_urea", name: "Cr/Urea", status: crUreaStatus, setStatus: setCrUreaStatus },
+    ];
+
+    const handleSubmit = (event: React.FormEvent) => {
+        event.preventDefault(); // Prevent default form submission
+        console.log("Adding patient to lab:", {
+            patient: patientSearchQuery,
+            blood: bloodStatus,
+            urine: urineStatus,
+            stool: stoolStatus,
+            cr_urea: crUreaStatus,
+        });
+        // Here you would typically dispatch an action to update your state/backend
+        setIsDialogOpen(false); // Close the dialog
+        setPatientSearchQuery(""); // Reset patient search query
+        setBloodStatus(null); // Reset all lab statuses
+        setUrineStatus(null);
+        setStoolStatus(null);
+        setCrUreaStatus(null);
+    };
