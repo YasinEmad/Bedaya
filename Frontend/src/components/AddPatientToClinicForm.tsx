@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Checkbox } from "@ui/checkbox";
 import { X, Search, Upload, File } from "lucide-react";
 import {
     Drawer,
@@ -11,7 +11,7 @@ import {
     DrawerFooter,
     DrawerHeader,
     DrawerTitle,
-} from "./ui/drawer";
+} from "@ui/drawer";
 
 // Common diagnoses for the tag system
 const COMMON_DIAGNOSES = [

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { DataTable } from "./ui/data-table";
-import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Badge } from "@ui/badge";
+import { DataTable } from "@ui/data-table";
+import { Button } from "@ui/button";
 import {
     Dialog,
     DialogTrigger,
@@ -11,18 +11,18 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
-} from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+} from "@ui/dialog";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { RadioGroup, RadioGroupItem } from "@ui/radio-group";
 import {
     Select,
     SelectTrigger,
     SelectValue,
     SelectContent,
     SelectItem,
-} from "./ui/select";
-import ValueSelector from "./ui/ValueSelector";
+} from "@ui/select";
+import ValueSelector from "@ui/ValueSelector";
 
 interface StoolLabsModuleProps {
     activeLabSection?: string;

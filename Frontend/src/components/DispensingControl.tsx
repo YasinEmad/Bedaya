@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
-import { Switch } from "./ui/switch";
-import { DataTable } from "./ui/data-table"; // Assuming DataTable is used in dispensing
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Badge } from "@ui/badge";
+import { Switch } from "@ui/switch";
+import { DataTable } from "@ui/data-table"; // Assuming DataTable is used in dispensing
 import {
   Dialog,
   DialogTrigger,
@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-} from "./ui/dialog";import {
+} from "@ui/dialog";import {
   Pill,
   Search,
   Plus,
@@ -32,7 +32,7 @@ import {
   Eye,
   Edit
 } from "lucide-react";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@ui/select";
 
 interface DispensingControlProps {
     // Define any props that DispensingTab might have received or needs now

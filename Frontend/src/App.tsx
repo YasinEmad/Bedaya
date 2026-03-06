@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import { Sidebar } from "./components/Sidebar";
-import { TopBar } from "./components/TopBar";
-import { Dashboard } from "./components/Dashboard";
-import { AdultsModule } from "./components/PatientsModule";
-import { PediatricsModule } from "./components/PediatricsModule";
-
-import { ClinicsModule } from "./components/ClinicsModule";
-import { LabsModule } from "./components/LabsModule";
-
-import { PharmacyModule } from "./components/PharmacyModule";
+import { AppSidebar as Sidebar, TopBar, Dashboard, AdultsModule, PediatricsModule, ClinicsModule, LabsModule, PharmacyModule } from "@components";
 
 export default function App() {
   const [activeModule, setActiveModule] = useState("dashboard");

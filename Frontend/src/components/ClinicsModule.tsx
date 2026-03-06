@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { DataTable } from "./ui/data-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Badge } from "@ui/badge";
+import { DataTable } from "@ui/data-table";
 import { AddPatientToClinicForm } from "./AddPatientToClinicForm";
 import { toast } from "sonner";
 import { 
@@ -16,7 +16,7 @@ import {
   Plus,
   Clock
 } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "@ui/button";
 
 interface ClinicsModuleProps {
     activeClinic: string;

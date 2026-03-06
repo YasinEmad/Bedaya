@@ -1,8 +1,8 @@
 import React from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Badge } from "./ui/badge";
-import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Badge } from "@ui/badge";
+import { Avatar, AvatarFallback } from "@ui/avatar";
 import { 
   Search, 
   Bell, 

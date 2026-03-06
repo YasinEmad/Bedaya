@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { DataTable } from "./ui/data-table";
-import { Badge } from "./ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Button } from "@ui/button";
+import { DataTable } from "@ui/data-table";
+import { Badge } from "@ui/badge";
 import {
   Dialog,
   DialogTrigger,
@@ -14,10 +14,10 @@ import {
   DialogDescription,
   DialogFooter,
   DialogContent
-} from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "./ui/select";
+} from "@ui/dialog";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@ui/select";
 
 interface InventoryItem {
   id: string;

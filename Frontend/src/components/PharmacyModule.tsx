@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Badge } from "./ui/badge";
-import { Switch } from "./ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { DataTable } from "./ui/data-table";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Badge } from "@ui/badge";
+import { Switch } from "@ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@ui/tabs";
+import { DataTable } from "@ui/data-table";
 import { InventoryControl } from "./InventoryControl";
 import { DispensingControl } from "./DispensingControl";
 import { 

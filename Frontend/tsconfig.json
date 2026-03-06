@@ -13,7 +13,15 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@components": ["src/components/index.ts"],
+      "@ui/*": ["src/components/ui/*"],
+      "@ui": ["src/components/ui/index.ts"],
+      "@lib/*": ["src/lib/*"],
+      "@lib": ["src/lib/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "build"]

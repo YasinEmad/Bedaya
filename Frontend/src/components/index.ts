@@ -1,0 +1,21 @@
+// Barrel exports for top-level components
+export * from './AddAdultPatientForm';
+export { default as AddAdultPatientForm } from './AddAdultPatientForm';
+export * from './AddCrUreaPatientDialog';
+export * from './AddPatientToClinicForm';
+export * from './AddPediatricPatientForm';
+export * from './BloodLabsModule';
+export * from './ClinicsModule';
+export * from './Dashboard';
+export * from './DispensingControl';
+export * from './InventoryControl';
+export * from './LabsModule';
+export * from './PatientsModule';
+export * from './PediatricsModule';
+export * from './PharmacyModule';
+export { Sidebar as AppSidebar } from './Sidebar';
+export * from './StoolLabsModule';
+export * from './TopBar';
+export * from './UrineLabsModule';
+export * from './figma/ImageWithFallback';
+export * from './ui';

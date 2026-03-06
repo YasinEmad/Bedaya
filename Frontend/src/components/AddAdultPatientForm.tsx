@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
-import { Textarea } from "./ui/textarea";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Checkbox } from "@ui/checkbox";
+import { Textarea } from "@ui/textarea";
 import { Plus, X, Save, Users } from "lucide-react";
 import {
   Drawer,
@@ -12,8 +12,8 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "./ui/drawer";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+} from "@ui/drawer";
+import { RadioGroup, RadioGroupItem } from "@ui/radio-group";
 
 interface FormData {
   // Header
@@ -1014,3 +1014,5 @@ export function AddAdultPatientForm({ open, onOpenChange, onSubmit, initialData 
     </Drawer>
   );
 }
+
+    export default AddAdultPatientForm;

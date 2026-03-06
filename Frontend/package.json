@@ -1,5 +1,5 @@
 {
-      "name": "Medical Convoy Dashboard Design (Copy)",
+      "name": "medical-convoy-dashboard-design-copy",
       "version": "0.1.0",
       "private": true,
       "dependencies": {
@@ -48,15 +48,25 @@
             "tailwindcss": "^4.1.18",
             "vaul": "^1.1.2"
       },
-      "devDependencies": {
-            "@types/node": "^20.10.0",
-            "@types/react": "^19.2.14",
-            "@types/react-dom": "^19.2.3",
-            "@vitejs/plugin-react-swc": "^3.10.2",
-            "vite": "6.3.5"
-      },
-      "scripts": {
-            "dev": "vite",
-            "build": "vite build"
-      }
+        "devDependencies": {
+                  "@types/node": "^20.10.0",
+                  "@types/react": "^19.2.14",
+                  "@types/react-dom": "^19.2.3",
+                  "@vitejs/plugin-react-swc": "^3.10.2",
+                  "vite": "6.3.5",
+                  "eslint": "^8.35.0",
+                  "@typescript-eslint/parser": "^5.59.0",
+                  "@typescript-eslint/eslint-plugin": "^5.59.0",
+                  "eslint-plugin-react": "^7.32.2",
+                  "eslint-plugin-react-hooks": "^4.6.0",
+                  "eslint-config-prettier": "^8.8.0",
+                  "prettier": "^2.8.8"
+            },
+            "scripts": {
+                  "dev": "vite",
+                  "build": "vite build",
+                  "lint": "eslint 'src/**/*.{ts,tsx}' --max-warnings=0",
+                  "format": "prettier --write 'src/**/*.{ts,tsx,css,md,json}'",
+                  "fix-imports": "node tools/fix-imports.js"
+            }
 }

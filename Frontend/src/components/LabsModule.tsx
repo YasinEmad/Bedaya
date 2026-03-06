@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { DataTable } from "./ui/data-table";
-import { Button } from "./ui/button"; // Import Button
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Badge } from "@ui/badge";
+import { DataTable } from "@ui/data-table";
+import { Button } from "@ui/button";
 import {
     Dialog,
     DialogTrigger,
@@ -11,10 +11,10 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
-} from "./ui/dialog";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { InOutSelector } from "./ui/in-out-selector";
+} from "@ui/dialog";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { InOutSelector } from "@ui/in-out-selector";
 import { Plus } from "lucide-react";
 
 import { UrineLabsModule } from "./UrineLabsModule";

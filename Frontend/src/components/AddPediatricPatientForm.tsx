@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "./ui/drawer";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { Checkbox } from "./ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Textarea } from "./ui/textarea";
+import { Button } from "@ui/button";
+import { Input } from "@ui/input";
+import { Label } from "@ui/label";
+import { Checkbox } from "@ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@ui/radio-group";
+import { Textarea } from "@ui/textarea";
 import { X, Baby } from "lucide-react";
 
 interface PediatricFormData {

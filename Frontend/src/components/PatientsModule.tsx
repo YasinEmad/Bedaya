@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Badge } from "./ui/badge";
-import { DataTable } from "./ui/data-table";
-import { AddAdultPatientForm } from "./AddAdultPatientForm";
+import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
+import { Button } from "@ui/button";
+import { Badge } from "@ui/badge";
+import { DataTable } from "@ui/data-table";
+import AddAdultPatientForm from "./AddAdultPatientForm";
 import { toast } from "sonner";
 import { 
   UserPlus,
