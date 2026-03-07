@@ -1,5 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { patientsSlice, labsSlice, pharmacySlice, clinicsSlice, uiSlice } from './slices';
+import { patientsSlice, labsSlice, pharmacySlice, clinicsSlice, uiSlice, commonSlice } from './slices';
 
 export const store = configureStore({
   reducer: {
@@ -8,6 +8,7 @@ export const store = configureStore({
     pharmacy: pharmacySlice,
     clinics: clinicsSlice,
     ui: uiSlice,
+    common: commonSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

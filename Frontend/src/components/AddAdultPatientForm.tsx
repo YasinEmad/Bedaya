@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useAppSelector } from "../store/hooks";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
@@ -113,38 +114,8 @@ interface AddAdultPatientFormProps {
   initialData?: Partial<FormData>;
 }
 
-// Common diagnoses/complaints for the tag system
-const COMMON_COMPLAINTS = [
-  "Headache",
-  "Fever",
-  "Cough",
-  "Chest Pain",
-  "Abdominal Pain",
-  "Back Pain",
-  "Joint Pain",
-  "Fatigue",
-  "Dizziness",
-  "Nausea",
-  "Vomiting",
-  "Diarrhea",
-  "Constipation",
-  "Shortness of Breath",
-  "Palpitations",
-  "Hypertension",
-  "Diabetes",
-  "Skin Rash",
-  "Eye Pain",
-  "Blurred Vision",
-  "Ear Pain",
-  "Sore Throat",
-  "Dental Pain",
-  "Toothache",
-  "Weakness",
-  "Weight Loss",
-  "Loss of Appetite"
-];
-
 export function AddAdultPatientForm({ open, onOpenChange, onSubmit, initialData }: AddAdultPatientFormProps) {
+  const adultComplaints = useAppSelector((state) => state.common.adultComplaints);
   const [formData, setFormData] = useState<FormData>({
     houseNumber: initialData?.houseNumber || "",
     code: initialData?.code || "",
@@ -277,7 +248,7 @@ export function AddAdultPatientForm({ open, onOpenChange, onSubmit, initialData 
     }));
   };
 
-  const filteredComplaints = COMMON_COMPLAINTS.filter(c => 
+  const filteredComplaints = adultComplaints.filter(c => 
     c.toLowerCase().includes(complaintSearch.toLowerCase()) &&
     !formData.complaints.includes(c)
   );

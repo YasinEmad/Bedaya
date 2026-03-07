@@ -1,64 +1,116 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 import { Button } from "@ui/button";
 import { Badge } from "@ui/badge";
 import { DataTable } from "@ui/data-table";
 import { AddPediatricPatientForm } from "./AddPediatricPatientForm";
 import { toast } from "sonner";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
+import { fetchPediatricPatients, createPediatricPatient } from "../store/slices/patientsSlice";
 import {
   UserPlus,
   Baby,
   Stethoscope,
-  Clock
+  Clock,
+  Loader2
 } from "lucide-react";
 
 export function PediatricsModule() {
+  const dispatch = useAppDispatch();
+  const { pediatricPatients, loading, error, pagination } = useAppSelector((state) => state.patients);
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
 
-  const handleSubmit = (formData: any) => {
-    // Here you would typically send the data to your backend
-    console.log("New pediatric patient data:", formData);
-    
-    setIsAddPatientOpen(false);
-    
-    // Show success message
-    toast.success("Pediatric patient added successfully!", {
-      description: `${formData.patientName} has been registered in the system.`
-    });
-  };
+  // Fetch patients on component mount
+  useEffect(() => {
+    dispatch(fetchPediatricPatients({}));
+  }, [dispatch]);
 
-  // Generate pediatric patients dataset
-  const generatePatients = () => {
-    const firstNames = ["Ahmed", "Fatima", "Omar", "Nour", "Youssef", "Layla", "Hassan", "Zahra", "Ali", "Maryam", "Ibrahim", "Sara", "Khalid", "Amira", "Mohammed"];
-    const lastNames = ["Ali", "Hassan", "Said", "Ibrahim", "Ahmed", "Mahmoud", "Yousef", "Salem", "Farah", "Nasser", "Khalil", "Rashid", "Hamza", "Tariq", "Malik"];
-    const clinicsOptions = ["Pediatrics", "ENT", "Dermatology", "Dental", "Ophthalmology", "Cardiology", "Orthopedics"];
+  const handleSubmit = async (formData: any) => {
+    try {
+      // Transform form data to match API format
+      const apiData = {
+        houseNumber: formData.houseNumber,
+        patientCode: formData.code,
+        pov: formData.pov,
+        patientName: formData.patientName,
+        sex: formData.sex === 'M' ? 'male' : 'female',
+        age: parseInt(formData.age) || 0,
+        mobileNumber: formData.mobileNumber || undefined,
+        complaints: formData.complaints || [],
+        immunization: formData.immunization as 'upToDate' | 'delayed' | 'none' || 'none',
+        dietaryHistory: formData.dietetic as 'breastfeeding' | 'artificial' | 'combined' | 'weaned' || undefined,
+        vitals: {
+          HR: formData.vitalHR ? parseInt(formData.vitalHR) : undefined,
+          RR: formData.vitalRR ? parseInt(formData.vitalRR) : undefined,
+          BP: formData.vitalBP || undefined,
+          temperature: formData.vitalTemp ? parseFloat(formData.vitalTemp) : undefined,
+          SpO2: formData.vitalSpo2 ? parseInt(formData.vitalSpo2) : undefined,
+        },
+        anthropometry: {
+          weight: formData.weight ? parseFloat(formData.weight) : undefined,
+          height: formData.height ? parseFloat(formData.height) : undefined,
+        },
+        referrals: {
+          internalMedicine: formData.referralIM || false,
+          cardiology: formData.referralCardio || false,
+          surgery: formData.referralSurgery || false,
+          ophthalmology: formData.referralOphthalmology || false,
+          ENT: formData.referralENT || false,
+          dermatology: formData.referralDerma || false,
+          orthopedics: formData.referralOrtho || false,
+          dental: formData.referralDental || false,
+          goHome: formData.referralGoHome || false,
+        },
+      };
 
-    const patients = [];
-    for (let i = 1; i <= 89; i++) {
-      const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-      const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+      await dispatch(createPediatricPatient(apiData)).unwrap();
+      toast.success("Pediatric patient added successfully!", {
+        description: `${formData.patientName} has been registered in the system.`
+      });
       
-      // Each patient can be referred to 1-2 clinics
-      const numClinics = Math.floor(Math.random() * 2) + 1;
-      const referredClinics = [];
-      const availableClinics = [...clinicsOptions];
+      setIsAddPatientOpen(false);
       
-      for (let j = 0; j < numClinics; j++) {
-        const randomIndex = Math.floor(Math.random() * availableClinics.length);
-        referredClinics.push(availableClinics[randomIndex]);
-        availableClinics.splice(randomIndex, 1);
-      }
-      
-      patients.push({
-        id: `PED${String(i).padStart(3, '0')}`,
-        name: `${firstName} ${lastName}`,
-        clinics: referredClinics
+      // Refresh the patient list
+      dispatch(fetchPediatricPatients({}));
+    } catch (error) {
+      toast.error("Failed to save pediatric patient", {
+        description: "Please try again or contact support if the problem persists."
       });
     }
-    return patients;
   };
 
-  const patients = generatePatients();
+  // Transform patient data for the table
+  const transformPatientData = (patients: any[]) => {
+    return patients.map(patient => ({
+      id: patient.patientCode,
+      name: patient.patientName,
+      clinics: getReferredClinics(patient.referrals || {}),
+      _id: patient._id,
+      ...patient
+    }));
+  };
+
+  // Helper function to get referred clinics from referrals object
+  const getReferredClinics = (referrals: any) => {
+    const clinicMap: { [key: string]: string } = {
+      internalMedicine: "Internal Medicine",
+      cardiology: "Cardiology",
+      surgery: "Surgery",
+      ophthalmology: "Ophthalmology",
+      obstetricGynecology: "Obstetrics & Gynecology",
+      ENT: "ENT",
+      dermatology: "Dermatology",
+      orthopedics: "Orthopedics",
+      dental: "Dental",
+      goHome: "Go Home"
+    };
+
+    return Object.entries(referrals)
+      .filter(([_, value]) => value === true)
+      .map(([key, _]) => clinicMap[key] || key);
+  };
+
+  const transformedPatients = transformPatientData(pediatricPatients);
 
   const patientColumns = [
     {
@@ -130,7 +182,9 @@ export function PediatricsModule() {
           <CardContent className="p-5 flex items-center justify-between">
              <div>
                <p className="text-sm font-medium text-slate-500">Total Patients</p>
-               <p className="text-3xl font-bold text-slate-900 mt-1">{patients.length}</p>
+               <p className="text-3xl font-bold text-slate-900 mt-1">
+                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : pagination.total}
+               </p>
              </div>
              <div className="p-3 bg-pink-50 rounded-xl">
                <Baby className="w-6 h-6 text-pink-500" />
@@ -140,26 +194,39 @@ export function PediatricsModule() {
         <Card className="border-slate-100 shadow-sm bg-white overflow-hidden">
           <CardContent className="p-5 flex items-center justify-between">
              <div>
-               <p className="text-sm font-medium text-slate-500">Seen Today</p>
-               <p className="text-3xl font-bold text-slate-900 mt-1">42</p>
+               <p className="text-sm font-medium text-slate-500">Active Patients</p>
+               <p className="text-3xl font-bold text-slate-900 mt-1">
+                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : pediatricPatients.filter(p => !p.referrals?.goHome).length}
+               </p>
              </div>
-             <div className="p-3 bg-slate-50 rounded-xl">
-               <Stethoscope className="w-6 h-6 text-slate-500" />
+             <div className="p-3 bg-blue-50 rounded-xl">
+               <Stethoscope className="w-6 h-6 text-blue-500" />
              </div>
           </CardContent>
         </Card>
         <Card className="border-slate-100 shadow-sm bg-white overflow-hidden">
           <CardContent className="p-5 flex items-center justify-between">
              <div>
-               <p className="text-sm font-medium text-slate-500">Pending</p>
-               <p className="text-3xl font-bold text-slate-900 mt-1">12</p>
+               <p className="text-sm font-medium text-slate-500">Referred to Clinics</p>
+               <p className="text-3xl font-bold text-slate-900 mt-1">
+                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : pediatricPatients.filter(p => Object.values(p.referrals || {}).some(v => v)).length}
+               </p>
              </div>
-             <div className="p-3 bg-slate-50 rounded-xl">
-               <Clock className="w-6 h-6 text-slate-500" />
+             <div className="p-3 bg-orange-50 rounded-xl">
+               <Clock className="w-6 h-6 text-orange-500" />
              </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Error Display */}
+      {error && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <p className="text-red-800 text-sm">Error loading pediatric patients: {error}</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Patient Database */}
       <Card className="border-slate-100 shadow-sm bg-white">
@@ -167,11 +234,18 @@ export function PediatricsModule() {
           <CardTitle className="text-lg font-bold text-slate-900">All Pediatric Patients Database</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <DataTable 
-            data={patients} 
-            columns={patientColumns}
-            pageSize={15}
-          />
+          {loading ? (
+            <div className="flex items-center justify-center p-8">
+              <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+              <span className="ml-2 text-slate-500">Loading pediatric patients...</span>
+            </div>
+          ) : (
+            <DataTable 
+              data={transformedPatients} 
+              columns={patientColumns}
+              pageSize={15}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

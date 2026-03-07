@@ -259,68 +259,80 @@ interface PatientsState {
 export const fetchAdultPatients = createAsyncThunk(
   'patients/fetchAdultPatients',
   async ({ page = 1, limit = 20, search = '' }: { page?: number; limit?: number; search?: string }) => {
-    const response = await fetch(`/api/v1/patients/adults?page=${page}&limit=${limit}&search=${search}`);
+    const response = await fetch(`/api/patients/adults?page=${page}&limit=${limit}&search=${search}`);
     if (!response.ok) throw new Error('Failed to fetch adult patients');
-    return response.json();
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to fetch adult patients');
+    return result;
   }
 );
 
 export const fetchPediatricPatients = createAsyncThunk(
   'patients/fetchPediatricPatients',
   async ({ page = 1, limit = 20, search = '' }: { page?: number; limit?: number; search?: string }) => {
-    const response = await fetch(`/api/v1/patients/pediatrics?page=${page}&limit=${limit}&search=${search}`);
+    const response = await fetch(`/api/patients/pediatrics?page=${page}&limit=${limit}&search=${search}`);
     if (!response.ok) throw new Error('Failed to fetch pediatric patients');
-    return response.json();
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to fetch pediatric patients');
+    return result;
   }
 );
 
 export const createAdultPatient = createAsyncThunk(
   'patients/createAdultPatient',
   async (patientData: PatientFormData) => {
-    const response = await fetch('/api/v1/patients/adults', {
+    const response = await fetch('/api/patients/adults', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patientData),
     });
     if (!response.ok) throw new Error('Failed to create adult patient');
-    return response.json();
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to create adult patient');
+    return result.data;
   }
 );
 
 export const createPediatricPatient = createAsyncThunk(
   'patients/createPediatricPatient',
   async (patientData: any) => {
-    const response = await fetch('/api/v1/patients/pediatrics', {
+    const response = await fetch('/api/patients/pediatrics', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patientData),
     });
     if (!response.ok) throw new Error('Failed to create pediatric patient');
-    return response.json();
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to create pediatric patient');
+    return result.data;
   }
 );
 
 export const updateAdultPatient = createAsyncThunk(
   'patients/updateAdultPatient',
-  async ({ id, patientData }: { id: string; patientData: Partial<PatientFormData> }) => {
-    const response = await fetch(`/api/v1/patients/adults/${id}`, {
+  async ({ patientCode, patientData }: { patientCode: string; patientData: Partial<PatientFormData> }) => {
+    const response = await fetch(`/api/patients/adults/${patientCode}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patientData),
     });
     if (!response.ok) throw new Error('Failed to update adult patient');
-    return response.json();
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to update adult patient');
+    return result.data;
   }
 );
 
 export const deleteAdultPatient = createAsyncThunk(
   'patients/deleteAdultPatient',
-  async (id: string) => {
-    const response = await fetch(`/api/v1/patients/adults/${id}`, {
+  async (patientCode: string) => {
+    const response = await fetch(`/api/patients/adults/${patientCode}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete adult patient');
-    return id;
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to delete adult patient');
+    return patientCode;
   }
 );
 
@@ -401,7 +413,7 @@ const patientsSlice = createSlice({
       })
       .addCase(createAdultPatient.fulfilled, (state, action) => {
         state.loading = false;
-        state.adultPatients.unshift(action.payload.data);
+        state.adultPatients.unshift(action.payload);
         state.pagination.total += 1;
       })
       .addCase(createAdultPatient.rejected, (state, action) => {
@@ -416,7 +428,7 @@ const patientsSlice = createSlice({
       })
       .addCase(createPediatricPatient.fulfilled, (state, action) => {
         state.loading = false;
-        state.pediatricPatients.unshift(action.payload.data);
+        state.pediatricPatients.unshift(action.payload);
         state.pagination.total += 1;
       })
       .addCase(createPediatricPatient.rejected, (state, action) => {
@@ -431,12 +443,12 @@ const patientsSlice = createSlice({
       })
       .addCase(updateAdultPatient.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.adultPatients.findIndex(p => p._id === action.payload.data._id);
+        const index = state.adultPatients.findIndex(p => p.patientCode === action.payload.patientCode);
         if (index !== -1) {
-          state.adultPatients[index] = action.payload.data;
+          state.adultPatients[index] = action.payload;
         }
-        if (state.selectedPatient && state.selectedPatient._id === action.payload.data._id) {
-          state.selectedPatient = action.payload.data;
+        if (state.selectedPatient && state.selectedPatient.patientCode === action.payload.patientCode) {
+          state.selectedPatient = action.payload;
         }
       })
       .addCase(updateAdultPatient.rejected, (state, action) => {
@@ -451,9 +463,9 @@ const patientsSlice = createSlice({
       })
       .addCase(deleteAdultPatient.fulfilled, (state, action) => {
         state.loading = false;
-        state.adultPatients = state.adultPatients.filter(p => p._id !== action.payload);
+        state.adultPatients = state.adultPatients.filter(p => p.patientCode !== action.payload);
         state.pagination.total -= 1;
-        if (state.selectedPatient && state.selectedPatient._id === action.payload) {
+        if (state.selectedPatient && state.selectedPatient.patientCode === action.payload) {
           state.selectedPatient = null;
         }
       })

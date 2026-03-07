@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AppSidebar as Sidebar, TopBar, Dashboard, AdultsModule, PediatricsModule, ClinicsModule, LabsModule, PharmacyModule } from "@components";
+import { AppSidebar as Sidebar, TopBar, Dashboard, AdultsModule, PediatricsModule, ClinicsModule, LabsModule, PharmacyModule } from "./components";
 
 export default function App() {
   const [activeModule, setActiveModule] = useState("dashboard");

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useAppSelector } from "../store/hooks";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "./ui/drawer";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
@@ -130,31 +131,9 @@ interface AddPediatricPatientFormProps {
   onSubmit: (data: PediatricFormData) => void;
 }
 
-// Common pediatric complaints for the tag system
-const COMMON_PEDIATRIC_COMPLAINTS = [
-  "Fever",
-  "Cough",
-  "Ear Infection",
-  "Skin Rash",
-  "Asthma",
-  "Diarrhea",
-  "Vomiting",
-  "Abdominal Pain",
-  "Constipation",
-  "Dental Pain",
-  "Growth Concerns",
-  "Developmental Delay",
-  "Poor Feeding",
-  "Jaundice",
-  "Seizures",
-  "Headache",
-  "Malnutrition",
-  "Anemia",
-  "Respiratory Distress"
-];
-
 export function AddPediatricPatientForm({ open, onOpenChange, onSubmit }: AddPediatricPatientFormProps) {
-  const educationOptions = ["Illiterate", "Read and Write", "Primary", "Preparatory", "Secondary", "University", "Postgraduate"];
+  const pediatricComplaints = useAppSelector((state) => state.common.pediatricComplaints);
+  const educationOptions = useAppSelector((state) => state.common.educationOptions);
 
   const [formData, setFormData] = useState<PediatricFormData>({
     houseNumber: "",
@@ -286,7 +265,7 @@ export function AddPediatricPatientForm({ open, onOpenChange, onSubmit }: AddPed
     }));
   };
 
-  const filteredComplaints = COMMON_PEDIATRIC_COMPLAINTS.filter(c =>
+  const filteredComplaints = pediatricComplaints.filter(c =>
     c.toLowerCase().includes(complaintSearch.toLowerCase()) &&
     !formData.complaints.includes(c)
   );
