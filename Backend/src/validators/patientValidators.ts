@@ -8,12 +8,13 @@ export const createAdultPatientSchema = Joi.object({
   houseNumber: Joi.string().required().messages({
     'string.empty': 'House number is required'
   }),
+  // patientCode is now optional at creation time; the service will auto-generate a code if
+  // one isn't supplied.  When provided, it still must match the same pattern.
   patientCode: Joi.string()
     .pattern(patientCodePattern)
-    .required()
+    .optional()
     .messages({
-      'string.pattern.base': 'Patient code must contain only letters and numbers',
-      'string.empty': 'Patient code is required'
+      'string.pattern.base': 'Patient code must contain only letters and numbers'
     }),
   pov: Joi.boolean().default(false),
   patientName: Joi.string().min(2).required().messages({

@@ -29,7 +29,8 @@ export function AdultsModule() {
       // Transform form data to match API format
       const apiData = {
         houseNumber: formData.houseNumber,
-        patientCode: formData.code,
+        // only include code if user entered one; backend will generate otherwise
+        patientCode: formData.code || undefined,
         pov: formData.pov,
         patientName: formData.patientName,
         sex: formData.sex === 'M' ? 'male' : 'female',
@@ -147,9 +148,10 @@ export function AdultsModule() {
       
       // Refresh the patient list
       dispatch(fetchAdultPatients({}));
-    } catch (error) {
+    } catch (error: any) {
+      // show server-provided message if available
       toast.error("Failed to save patient", {
-        description: "Please try again or contact support if the problem persists."
+        description: error?.message || "Please try again or contact support if the problem persists."
       });
     }
   };

@@ -281,14 +281,37 @@ export const fetchPediatricPatients = createAsyncThunk(
 export const createAdultPatient = createAsyncThunk(
   'patients/createAdultPatient',
   async (patientData: PatientFormData) => {
+    // strip out empty code so server can auto-generate it
+    const payload: any = { ...patientData };
+    if (!payload.patientCode) {
+      delete payload.patientCode;
+    }
+
     const response = await fetch('/api/patients/adults', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(patientData),
+      body: JSON.stringify(payload),
     });
-    if (!response.ok) throw new Error('Failed to create adult patient');
+
     const result = await response.json();
-    if (!result.success) throw new Error(result.message || 'Failed to create adult patient');
+    // response.ok will be false for validation/database errors;
+    // combine message and details when available so caller can surface them
+    if (!response.ok || !result.success) {
+      let msg = result.message || 'Failed to create adult patient';
+      if (result.details) {
+        // server may return an array of validation errors
+        if (Array.isArray(result.details)) {
+          const detailMsgs = result.details
+            .map((d: any) => d.message || JSON.stringify(d))
+            .join(', ');
+          msg += ': ' + detailMsgs;
+        } else {
+          msg += ' - ' + JSON.stringify(result.details);
+        }
+      }
+      throw new Error(msg);
+    }
+
     return result.data;
   }
 );
