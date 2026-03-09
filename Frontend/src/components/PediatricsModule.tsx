@@ -196,7 +196,7 @@ export function PediatricsModule() {
              <div>
                <p className="text-sm font-medium text-slate-500">Active Patients</p>
                <p className="text-3xl font-bold text-slate-900 mt-1">
-                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : pediatricPatients.filter(p => !p.referrals?.goHome).length}
+                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : pediatricPatients.length}
                </p>
              </div>
              <div className="p-3 bg-blue-50 rounded-xl">
@@ -209,7 +209,7 @@ export function PediatricsModule() {
              <div>
                <p className="text-sm font-medium text-slate-500">Referred to Clinics</p>
                <p className="text-3xl font-bold text-slate-900 mt-1">
-                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : pediatricPatients.filter(p => Object.values(p.referrals || {}).some(v => v)).length}
+                 {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : 0}
                </p>
              </div>
              <div className="p-3 bg-orange-50 rounded-xl">

@@ -197,6 +197,131 @@ export class ClinicService {
   /**
    * Get Visits for Date Range
    */
+  /**
+   * Get All Clinic Definitions
+   */
+  async getAllClinics() {
+    try {
+      const clinicDefinitions = [
+        {
+          id: 'internal-medicine',
+          name: 'Internal Medicine',
+          doctor: 'Dr. Sarah Chen',
+          color: 'bg-blue-100 text-blue-600',
+          status: 'active',
+          patients: 23,
+          waitTime: '15 min',
+          completed: 12,
+          avgTime: '18m'
+        },
+        {
+          id: 'orthopedics',
+          name: 'Orthopedics',
+          doctor: 'Dr. Michael Rodriguez',
+          color: 'bg-green-100 text-green-600',
+          status: 'active',
+          patients: 8,
+          waitTime: '30 min',
+          completed: 15,
+          avgTime: '25m'
+        },
+        {
+          id: 'ophthalmology',
+          name: 'Ophthalmology',
+          doctor: 'Dr. Lisa Wang',
+          color: 'bg-purple-100 text-purple-600',
+          status: 'active',
+          patients: 15,
+          waitTime: '20 min',
+          completed: 8,
+          avgTime: '12m'
+        },
+        {
+          id: 'obstetrics-gynecology',
+          name: 'Obs & Gynecology',
+          doctor: 'Dr. Jennifer Adams',
+          color: 'bg-pink-100 text-pink-600',
+          status: 'active',
+          patients: 12,
+          waitTime: '25 min',
+          completed: 6,
+          avgTime: '22m'
+        },
+        {
+          id: 'dermatology',
+          name: 'Dermatology',
+          doctor: 'Dr. David Kim',
+          color: 'bg-yellow-100 text-yellow-600',
+          status: 'active',
+          patients: 9,
+          waitTime: '40 min',
+          completed: 11,
+          avgTime: '15m'
+        },
+        {
+          id: 'dental',
+          name: 'Dental',
+          doctor: 'Dr. Maria Gonzalez',
+          color: 'bg-cyan-100 text-cyan-600',
+          status: 'active',
+          patients: 11,
+          waitTime: '10 min',
+          completed: 9,
+          avgTime: '20m'
+        },
+        {
+          id: 'cardiology',
+          name: 'Cardiology',
+          doctor: 'Dr. Robert Taylor',
+          color: 'bg-red-100 text-red-600',
+          status: 'active',
+          patients: 12,
+          waitTime: '35 min',
+          completed: 7,
+          avgTime: '28m'
+        },
+        {
+          id: 'surgery',
+          name: 'Surgery',
+          doctor: 'Dr. Amanda Foster',
+          color: 'bg-orange-100 text-orange-600',
+          status: 'active',
+          patients: 5,
+          waitTime: '45 min',
+          completed: 3,
+          avgTime: '45m'
+        },
+        {
+          id: 'ent',
+          name: 'ENT',
+          doctor: 'Dr. James Wilson',
+          color: 'bg-indigo-100 text-indigo-600',
+          status: 'active',
+          patients: 7,
+          waitTime: '18 min',
+          completed: 5,
+          avgTime: '16m'
+        },
+        {
+          id: 'pediatrics-clinic',
+          name: 'Pediatrics',
+          doctor: 'Dr. Elena Martinez',
+          color: 'bg-rose-100 text-rose-600',
+          status: 'active',
+          patients: 18,
+          waitTime: '12 min',
+          completed: 14,
+          avgTime: '14m'
+        }
+      ];
+
+      return clinicDefinitions;
+    } catch (error: any) {
+      logger.error('Error fetching clinics:', error);
+      throw new DatabaseError('Failed to fetch clinics', error.message);
+    }
+  }
+
   async getVisitsForDateRange(startDate: Date, endDate: Date) {
     try {
       const visits = await ClinicVisit.find({

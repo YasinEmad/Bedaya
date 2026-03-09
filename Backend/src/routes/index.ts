@@ -97,6 +97,7 @@ router.get('/pharmacy/statistics', pharmacyController.getPharmacyStatistics);
 // CLINIC ROUTES
 // ============================================
 
+router.get('/clinics', clinicController.getAllClinics);
 router.post(
   '/clinics/visit',
   validateRequest(createClinicVisitSchema),

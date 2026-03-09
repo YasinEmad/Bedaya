@@ -33,7 +33,7 @@ export function AdultsModule() {
         patientCode: formData.code || undefined,
         pov: formData.pov,
         patientName: formData.patientName,
-        sex: formData.sex === 'M' ? 'male' : 'female',
+        sex: (formData.sex === 'M' ? 'male' : 'female') as 'male' | 'female',
         age: parseInt(formData.age) || 0,
         occupation: formData.occupation || undefined,
         mobileNumber: formData.mobileNumber || undefined,
@@ -42,7 +42,7 @@ export function AdultsModule() {
         ageOfYoungest: formData.ageOfYoungest ? parseInt(formData.ageOfYoungest) : undefined,
         educationLevel: formData.educationLevel || undefined,
         smoking: formData.smoking ? {
-          status: formData.smoking === 'Yes' ? 'yes' : formData.smoking === 'Former' ? 'former' : 'no',
+          status: (formData.smoking === 'Yes' ? 'yes' : formData.smoking === 'Former' ? 'former' : 'no') as 'yes' | 'former' | 'no',
           rate: formData.smokingRate || undefined,
           type: formData.smokingType || undefined,
           durationYears: formData.smokingDuration ? parseInt(formData.smokingDuration) : undefined,
@@ -111,7 +111,7 @@ export function AdultsModule() {
           height: formData.height ? parseFloat(formData.height) : undefined,
           BMI: formData.bmi ? parseFloat(formData.bmi) : undefined,
         },
-        diabetesScreening: formData.diabetesKnown ? 'known' : formData.diabetesUnknown ? 'unknown' : 'none',
+        diabetesScreening: (formData.diabetesKnown ? 'known' : formData.diabetesUnknown ? 'unknown' : 'none') as 'known' | 'unknown' | 'none',
         referrals: {
           internalMedicine: formData.referralIM,
           cardiology: formData.referralCardio,

@@ -94,6 +94,16 @@ export class ClinicController {
   );
 
   /**
+   * Get All Clinic Definitions
+   */
+  getAllClinics = asyncHandler(
+    async (_req: Request, res: Response, _next: NextFunction) => {
+      const clinics = await clinicService.getAllClinics();
+      ApiResponse.success(res, clinics, 'Clinics retrieved successfully');
+    }
+  );
+
+  /**
    * Get Clinic Statistics
    */
   getClinicStatistics = asyncHandler(

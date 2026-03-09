@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { clinicService, ClinicDefinition } from '../../services/clinicService';
 
 // Types
 export interface ClinicVisit {
@@ -7,8 +8,8 @@ export interface ClinicVisit {
   patientName: string;
   clinicType: 'internal-medicine' | 'orthopedics' | 'ophthalmology' | 'obstetrics-gynecology' | 'dermatology' | 'dental' | 'cardiology' | 'surgery' | 'ent' | 'pediatrics-clinic';
   visitDate: string;
-  diagnosis: string[];
-  treatment: string[];
+  diagnosis: string;
+  treatment: string;
   medications: Array<{
     medicineId: string;
     medicineName: string;
@@ -50,8 +51,8 @@ export interface CreateClinicVisitData {
   patientId: string;
   patientName: string;
   clinicType: ClinicVisit['clinicType'];
-  diagnosis: string[];
-  treatment: string[];
+  diagnosis: string;
+  treatment: string;
   medications?: ClinicVisit['medications'];
   followUpDate?: string;
   notes?: string;
@@ -61,6 +62,7 @@ export interface CreateClinicVisitData {
 }
 
 interface ClinicsState {
+  clinics: ClinicDefinition[];
   clinicVisits: ClinicVisit[];
   patientClinicVisits: ClinicVisit[];
   selectedVisit: ClinicVisit | null;
@@ -79,6 +81,13 @@ interface ClinicsState {
 }
 
 // Async thunks
+export const fetchAllClinics = createAsyncThunk(
+  'clinics/fetchAllClinics',
+  async () => {
+    return await clinicService.getAllClinics();
+  }
+);
+
 export const fetchPatientClinicVisits = createAsyncThunk(
   'clinics/fetchPatientClinicVisits',
   async (patientId: string) => {
@@ -153,6 +162,7 @@ export const deleteClinicVisit = createAsyncThunk(
 );
 
 const initialState: ClinicsState = {
+  clinics: [],
   clinicVisits: [],
   patientClinicVisits: [],
   selectedVisit: null,
@@ -195,6 +205,21 @@ const clinicsSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    // Fetch All Clinics
+    builder
+      .addCase(fetchAllClinics.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllClinics.fulfilled, (state, action) => {
+        state.loading = false;
+        state.clinics = action.payload;
+      })
+      .addCase(fetchAllClinics.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch clinics';
+      })
+
     // Fetch Patient Clinic Visits
     builder
       .addCase(fetchPatientClinicVisits.pending, (state) => {

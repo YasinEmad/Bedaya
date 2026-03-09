@@ -259,7 +259,7 @@ interface PatientsState {
 export const fetchAdultPatients = createAsyncThunk(
   'patients/fetchAdultPatients',
   async ({ page = 1, limit = 20, search = '' }: { page?: number; limit?: number; search?: string }) => {
-    const response = await fetch(`/api/patients/adults?page=${page}&limit=${limit}&search=${search}`);
+    const response = await fetch(`/api/v1/patients/adults?page=${page}&limit=${limit}&search=${search}`);
     if (!response.ok) throw new Error('Failed to fetch adult patients');
     const result = await response.json();
     if (!result.success) throw new Error(result.message || 'Failed to fetch adult patients');
@@ -270,7 +270,7 @@ export const fetchAdultPatients = createAsyncThunk(
 export const fetchPediatricPatients = createAsyncThunk(
   'patients/fetchPediatricPatients',
   async ({ page = 1, limit = 20, search = '' }: { page?: number; limit?: number; search?: string }) => {
-    const response = await fetch(`/api/patients/pediatrics?page=${page}&limit=${limit}&search=${search}`);
+    const response = await fetch(`/api/v1/patients/pediatrics?page=${page}&limit=${limit}&search=${search}`);
     if (!response.ok) throw new Error('Failed to fetch pediatric patients');
     const result = await response.json();
     if (!result.success) throw new Error(result.message || 'Failed to fetch pediatric patients');
@@ -287,7 +287,7 @@ export const createAdultPatient = createAsyncThunk(
       delete payload.patientCode;
     }
 
-    const response = await fetch('/api/patients/adults', {
+    const response = await fetch('/api/v1/patients/adults', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -319,7 +319,7 @@ export const createAdultPatient = createAsyncThunk(
 export const createPediatricPatient = createAsyncThunk(
   'patients/createPediatricPatient',
   async (patientData: any) => {
-    const response = await fetch('/api/patients/pediatrics', {
+    const response = await fetch('/api/v1/patients/pediatrics', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patientData),
@@ -334,7 +334,7 @@ export const createPediatricPatient = createAsyncThunk(
 export const updateAdultPatient = createAsyncThunk(
   'patients/updateAdultPatient',
   async ({ patientCode, patientData }: { patientCode: string; patientData: Partial<PatientFormData> }) => {
-    const response = await fetch(`/api/patients/adults/${patientCode}`, {
+    const response = await fetch(`/api/v1/patients/adults/${patientCode}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patientData),
@@ -349,7 +349,7 @@ export const updateAdultPatient = createAsyncThunk(
 export const deleteAdultPatient = createAsyncThunk(
   'patients/deleteAdultPatient',
   async (patientCode: string) => {
-    const response = await fetch(`/api/patients/adults/${patientCode}`, {
+    const response = await fetch(`/api/v1/patients/adults/${patientCode}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete adult patient');
