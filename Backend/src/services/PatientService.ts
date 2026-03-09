@@ -1,10 +1,92 @@
 import { AdultPatient, IAdultPatient } from '../models/AdultPatient';
 import { PediatricPatient, IPediatricPatient } from '../models/PediatricPatient';
+import { ClinicVisit, IClinicVisit } from '../models/ClinicVisit';
 import { AppError, NotFoundError, DatabaseError } from '../utils/errorHandler';
 import { getPaginationParams, calculateBMI, generatePatientCode } from '../utils/helpers';
 import logger from '../config/logger';
 
 export class PatientService {
+  /**
+   * Map referral field names to clinic types
+   */
+  private referralFieldsToClinicTypes: {
+    [key in keyof IAdultPatient['referrals'] | string]: IClinicVisit['clinicType'];
+  } = {
+    internalMedicine: 'internal-medicine',
+    cardiology: 'cardiology',
+    surgery: 'surgery',
+    ophthalmology: 'ophthalmology',
+    obstetricGynecology: 'obstetrics-gynecology',
+    ENT: 'ent',
+    dermatology: 'dermatology',
+    orthopedics: 'orthopedics',
+    dental: 'dental'
+  };
+
+  /**
+   * Create ClinicVisit records for patient referrals
+   */
+  private async createClinicVisitsForReferrals(
+    patientCode: string,
+    patientName: string,
+    referrals: IAdultPatient['referrals']
+  ): Promise<void> {
+    if (!referrals) return;
+
+    try {
+      const clinicVisitsToCreate: Partial<IClinicVisit>[] = [];
+
+      // Check each referral field
+      Object.entries(referrals).forEach(([key, isReferred]) => {
+        if (isReferred === true) {
+          const clinicType = this.referralFieldsToClinicTypes[key];
+          if (clinicType) {
+            clinicVisitsToCreate.push({
+              patientId: patientCode,
+              patientName,
+              clinicType,
+              doctor: 'Clinic Staff', // Default value, can be updated later
+              diagnosis: 'Referral', // Default value
+              treatment: 'Pending', // Default value
+              visitDate: new Date()
+            });
+          }
+        }
+      });
+
+      if (clinicVisitsToCreate.length > 0) {
+        await ClinicVisit.insertMany(clinicVisitsToCreate);
+        logger.info(
+          `Created ${clinicVisitsToCreate.length} clinic visits for patient ${patientCode}`
+        );
+      }
+    } catch (error: any) {
+      logger.error('Error creating clinic visits for referrals:', error);
+      // Don't throw error - referral still saved even if clinic visit creation fails
+    }
+  }
+
+  /**
+   * Get referrals that changed (new referrals added)
+   */
+  private getNewReferrals(
+    oldReferrals: IAdultPatient['referrals'] | undefined,
+    newReferrals: IAdultPatient['referrals'] | undefined
+  ): IAdultPatient['referrals'] | null {
+    if (!newReferrals) return null;
+
+    const newRefs: IAdultPatient['referrals'] = {};
+    Object.entries(newReferrals).forEach(([key, isReferred]) => {
+      const wasReferred = oldReferrals?.[key as keyof IAdultPatient['referrals']];
+      // Include only if newly set to true (wasn't true before)
+      if (isReferred === true && wasReferred !== true) {
+        (newRefs as any)[key] = true;
+      }
+    });
+
+    return Object.keys(newRefs).length > 0 ? newRefs : null;
+  }
+
   /**
    * Create Adult Patient
    */
@@ -25,6 +107,15 @@ export class PatientService {
 
       const patient = new AdultPatient(data);
       const savedPatient = await patient.save();
+
+      // Create clinic visits for referrals
+      if (data.referrals && data.patientName) {
+        await this.createClinicVisitsForReferrals(
+          savedPatient.patientCode,
+          savedPatient.patientName,
+          data.referrals
+        );
+      }
 
       logger.info(`Adult patient created: ${savedPatient.patientCode}`);
       return savedPatient;
@@ -114,6 +205,9 @@ export class PatientService {
     data: Partial<IAdultPatient>
   ): Promise<IAdultPatient> {
     try {
+      // Get the old patient data to check for new referrals
+      const oldPatient = await AdultPatient.findOne({ patientCode }).lean();
+
       // Recalculate BMI if weight or height changed
       if (data.anthropometry?.weight && data.anthropometry?.height) {
         data.anthropometry.BMI = calculateBMI(
@@ -130,6 +224,18 @@ export class PatientService {
 
       if (!patient) {
         throw new NotFoundError(`Adult patient with code ${patientCode} not found`);
+      }
+
+      // Create clinic visits for newly added referrals
+      if (data.referrals && patient.patientName) {
+        const newReferrals = this.getNewReferrals(oldPatient?.referrals, data.referrals);
+        if (newReferrals) {
+          await this.createClinicVisitsForReferrals(
+            patient.patientCode,
+            patient.patientName,
+            newReferrals
+          );
+        }
       }
 
       logger.info(`Adult patient updated: ${patientCode}`);
@@ -171,6 +277,15 @@ export class PatientService {
 
       const patient = new PediatricPatient(data);
       const savedPatient = await patient.save();
+
+      // Create clinic visits for referrals
+      if (data.referrals && data.patientName) {
+        await this.createClinicVisitsForReferrals(
+          savedPatient.patientCode,
+          savedPatient.patientName,
+          data.referrals
+        );
+      }
 
       logger.info(`Pediatric patient created: ${savedPatient.patientCode}`);
       return savedPatient;
@@ -262,6 +377,9 @@ export class PatientService {
     data: Partial<IPediatricPatient>
   ): Promise<IPediatricPatient> {
     try {
+      // Get the old patient data to check for new referrals
+      const oldPatient = await PediatricPatient.findOne({ patientCode }).lean();
+
       const patient = await PediatricPatient.findOneAndUpdate(
         { patientCode },
         { ...data, updatedAt: new Date() },
@@ -272,6 +390,18 @@ export class PatientService {
         throw new NotFoundError(
           `Pediatric patient with code ${patientCode} not found`
         );
+      }
+
+      // Create clinic visits for newly added referrals
+      if (data.referrals && patient.patientName) {
+        const newReferrals = this.getNewReferrals(oldPatient?.referrals, data.referrals);
+        if (newReferrals) {
+          await this.createClinicVisitsForReferrals(
+            patient.patientCode,
+            patient.patientName,
+            newReferrals
+          );
+        }
       }
 
       logger.info(`Pediatric patient updated: ${patientCode}`);
