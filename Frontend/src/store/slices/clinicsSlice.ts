@@ -91,7 +91,7 @@ export const fetchAllClinics = createAsyncThunk(
 export const fetchPatientClinicVisits = createAsyncThunk(
   'clinics/fetchPatientClinicVisits',
   async (patientId: string) => {
-    const response = await fetch(`/api/v1/clinics/patient/${patientId}`);
+    const response = await fetch(`/api/clinics/patient/${patientId}`);
     if (!response.ok) throw new Error('Failed to fetch patient clinic visits');
     return response.json();
   }
@@ -100,7 +100,7 @@ export const fetchPatientClinicVisits = createAsyncThunk(
 export const fetchClinicVisitsByType = createAsyncThunk(
   'clinics/fetchClinicVisitsByType',
   async (clinicType: ClinicVisit['clinicType']) => {
-    const response = await fetch(`/api/v1/clinics/type/${clinicType}`);
+    const response = await fetch(`/api/clinics/type/${clinicType}`);
     if (!response.ok) throw new Error('Failed to fetch clinic visits by type');
     return response.json();
   }
@@ -109,7 +109,7 @@ export const fetchClinicVisitsByType = createAsyncThunk(
 export const fetchClinicStatistics = createAsyncThunk(
   'clinics/fetchClinicStatistics',
   async () => {
-    const response = await fetch('/api/v1/clinics/statistics');
+    const response = await fetch('/api/clinics/statistics');
     if (!response.ok) throw new Error('Failed to fetch clinic statistics');
     return response.json();
   }
@@ -118,7 +118,7 @@ export const fetchClinicStatistics = createAsyncThunk(
 export const fetchVisitsForDateRange = createAsyncThunk(
   'clinics/fetchVisitsForDateRange',
   async ({ startDate, endDate }: { startDate: string; endDate: string }) => {
-    const response = await fetch(`/api/v1/clinics/date-range?start=${startDate}&end=${endDate}`);
+    const response = await fetch(`/api/clinics/date-range?start=${startDate}&end=${endDate}`);
     if (!response.ok) throw new Error('Failed to fetch visits for date range');
     return response.json();
   }
@@ -127,7 +127,7 @@ export const fetchVisitsForDateRange = createAsyncThunk(
 export const createClinicVisit = createAsyncThunk(
   'clinics/createClinicVisit',
   async (visitData: CreateClinicVisitData) => {
-    const response = await fetch('/api/v1/clinics/visit', {
+    const response = await fetch('/api/clinics/visit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(visitData),
@@ -140,7 +140,7 @@ export const createClinicVisit = createAsyncThunk(
 export const updateClinicVisit = createAsyncThunk(
   'clinics/updateClinicVisit',
   async ({ id, visitData }: { id: string; visitData: Partial<CreateClinicVisitData> }) => {
-    const response = await fetch(`/api/v1/clinics/visit/${id}`, {
+    const response = await fetch(`/api/clinics/visit/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(visitData),
@@ -153,7 +153,7 @@ export const updateClinicVisit = createAsyncThunk(
 export const deleteClinicVisit = createAsyncThunk(
   'clinics/deleteClinicVisit',
   async (id: string) => {
-    const response = await fetch(`/api/v1/clinics/visit/${id}`, {
+    const response = await fetch(`/api/clinics/visit/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete clinic visit');

@@ -129,7 +129,7 @@ interface LabsState {
 export const fetchLabTestsByPatient = createAsyncThunk(
   'labs/fetchLabTestsByPatient',
   async (patientId: string) => {
-    const response = await fetch(`/api/v1/labs/patient/${patientId}`);
+    const response = await fetch(`/api/labs/patient/${patientId}`);
     if (!response.ok) throw new Error('Failed to fetch lab tests');
     return response.json();
   }
@@ -138,7 +138,7 @@ export const fetchLabTestsByPatient = createAsyncThunk(
 export const fetchRecentLabTests = createAsyncThunk(
   'labs/fetchRecentLabTests',
   async () => {
-    const response = await fetch('/api/v1/labs/recent');
+    const response = await fetch('/api/labs/recent');
     if (!response.ok) throw new Error('Failed to fetch recent lab tests');
     return response.json();
   }
@@ -147,7 +147,7 @@ export const fetchRecentLabTests = createAsyncThunk(
 export const fetchLabStatistics = createAsyncThunk(
   'labs/fetchLabStatistics',
   async () => {
-    const response = await fetch('/api/v1/labs/statistics');
+    const response = await fetch('/api/labs/statistics');
     if (!response.ok) throw new Error('Failed to fetch lab statistics');
     return response.json();
   }
@@ -156,7 +156,7 @@ export const fetchLabStatistics = createAsyncThunk(
 export const createLabTest = createAsyncThunk(
   'labs/createLabTest',
   async (testData: CreateLabTestData) => {
-    const response = await fetch('/api/v1/labs/tests', {
+    const response = await fetch('/api/labs/tests', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(testData),
@@ -169,7 +169,7 @@ export const createLabTest = createAsyncThunk(
 export const updateLabTest = createAsyncThunk(
   'labs/updateLabTest',
   async ({ id, testData }: { id: string; testData: Partial<CreateLabTestData> }) => {
-    const response = await fetch(`/api/v1/labs/test/${id}`, {
+    const response = await fetch(`/api/labs/test/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(testData),
@@ -182,7 +182,7 @@ export const updateLabTest = createAsyncThunk(
 export const deleteLabTest = createAsyncThunk(
   'labs/deleteLabTest',
   async (id: string) => {
-    const response = await fetch(`/api/v1/labs/test/${id}`, {
+    const response = await fetch(`/api/labs/test/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete lab test');

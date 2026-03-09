@@ -94,7 +94,7 @@ interface PharmacyState {
 export const fetchMedicines = createAsyncThunk(
   'pharmacy/fetchMedicines',
   async () => {
-    const response = await fetch('/api/v1/pharmacy/medicines');
+    const response = await fetch('/api/pharmacy/medicines');
     if (!response.ok) throw new Error('Failed to fetch medicines');
     return response.json();
   }
@@ -103,7 +103,7 @@ export const fetchMedicines = createAsyncThunk(
 export const fetchLowStockMedicines = createAsyncThunk(
   'pharmacy/fetchLowStockMedicines',
   async () => {
-    const response = await fetch('/api/v1/pharmacy/medicines/low-stock');
+    const response = await fetch('/api/pharmacy/medicines/low-stock');
     if (!response.ok) throw new Error('Failed to fetch low stock medicines');
     return response.json();
   }
@@ -112,7 +112,7 @@ export const fetchLowStockMedicines = createAsyncThunk(
 export const fetchDispensingHistory = createAsyncThunk(
   'pharmacy/fetchDispensingHistory',
   async () => {
-    const response = await fetch('/api/v1/pharmacy/dispensing/history');
+    const response = await fetch('/api/pharmacy/dispensing/history');
     if (!response.ok) throw new Error('Failed to fetch dispensing history');
     return response.json();
   }
@@ -121,7 +121,7 @@ export const fetchDispensingHistory = createAsyncThunk(
 export const fetchPharmacyStatistics = createAsyncThunk(
   'pharmacy/fetchPharmacyStatistics',
   async () => {
-    const response = await fetch('/api/v1/pharmacy/statistics');
+    const response = await fetch('/api/pharmacy/statistics');
     if (!response.ok) throw new Error('Failed to fetch pharmacy statistics');
     return response.json();
   }
@@ -130,7 +130,7 @@ export const fetchPharmacyStatistics = createAsyncThunk(
 export const addMedicine = createAsyncThunk(
   'pharmacy/addMedicine',
   async (medicineData: CreateMedicineData) => {
-    const response = await fetch('/api/v1/pharmacy/medicines', {
+    const response = await fetch('/api/pharmacy/medicines', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(medicineData),
@@ -143,7 +143,7 @@ export const addMedicine = createAsyncThunk(
 export const updateMedicineStock = createAsyncThunk(
   'pharmacy/updateMedicineStock',
   async ({ id, stock }: { id: string; stock: number }) => {
-    const response = await fetch(`/api/v1/pharmacy/medicines/${id}/stock`, {
+    const response = await fetch(`/api/pharmacy/medicines/${id}/stock`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ stock }),
@@ -156,7 +156,7 @@ export const updateMedicineStock = createAsyncThunk(
 export const dispenseMedicine = createAsyncThunk(
   'pharmacy/dispenseMedicine',
   async (dispensingData: DispenseMedicineData) => {
-    const response = await fetch('/api/v1/pharmacy/dispensing', {
+    const response = await fetch('/api/pharmacy/dispensing', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(dispensingData),
@@ -169,7 +169,7 @@ export const dispenseMedicine = createAsyncThunk(
 export const deleteMedicine = createAsyncThunk(
   'pharmacy/deleteMedicine',
   async (id: string) => {
-    const response = await fetch(`/api/v1/pharmacy/medicines/${id}`, {
+    const response = await fetch(`/api/pharmacy/medicines/${id}`, {
       method: 'DELETE',
     });
     if (!response.ok) throw new Error('Failed to delete medicine');
