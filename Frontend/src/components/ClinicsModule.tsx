@@ -47,12 +47,15 @@ export function ClinicsModule({ activeClinic }: ClinicsModuleProps) {
     const [isAddPatientFormOpen, setIsAddPatientFormOpen] = useState(false);
 
     // Map clinic visits to patient data
-    const clinicPatients = clinicVisits.map(visit => ({
-        id: visit.patientId,
-        name: visit.patientName,
-        diagnosis: visit.diagnosis,
-        treatment: visit.treatment
-    }));
+    const clinicPatients = clinicVisits.map(visit => {
+        console.log('Clinic visit data:', visit);
+        return {
+            id: visit.patientCode || visit.patientId,
+            name: visit.patientName,
+            diagnosis: visit.diagnosis,
+            treatment: visit.treatment
+        };
+    });
 
     const patientColumns = [
         {
@@ -114,12 +117,20 @@ export function ClinicsModule({ activeClinic }: ClinicsModuleProps) {
 
     const selectedClinic = clinics.find(c => c.id === activeClinic);
 
-    const handleAddPatientSubmit = (formData: any) => {
-        console.log("Patient data for clinic:", formData);
-        setIsAddPatientFormOpen(false);
-        toast.success("Patient added to clinic successfully!", {
-            description: `Patient has been added to the ${selectedClinic?.name} queue.`
-        });
+    const handleAddPatientSubmit = async (formData: any) => {
+        try {
+            await dispatch(createClinicVisit(formData)).unwrap();
+            setIsAddPatientFormOpen(false);
+            toast.success("Patient added to clinic successfully!", {
+                description: `Patient has been added to the ${selectedClinic?.name} queue.`
+            });
+            // Refresh the clinic visits
+            dispatch(fetchClinicVisitsByType(activeClinic as any));
+        } catch (error) {
+            toast.error("Failed to add patient to clinic", {
+                description: error instanceof Error ? error.message : "Unknown error occurred"
+            });
+        }
     };
 
     // Loading state
@@ -204,6 +215,7 @@ export function ClinicsModule({ activeClinic }: ClinicsModuleProps) {
                     onOpenChange={setIsAddPatientFormOpen}
                     onSubmit={handleAddPatientSubmit}
                     clinicName={selectedClinic.name}
+                    clinicType={activeClinic}
                 />
             </div>
         )

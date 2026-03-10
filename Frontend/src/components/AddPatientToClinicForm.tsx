@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@ui/button";
 import { Input } from "@ui/input";
 import { Label } from "@ui/label";
 import { Checkbox } from "@ui/checkbox";
-import { X, Search, Upload, File } from "lucide-react";
+import { X, Search, Upload, File, User } from "lucide-react";
 import {
     Drawer,
     DrawerContent,
@@ -12,6 +12,9 @@ import {
     DrawerHeader,
     DrawerTitle,
 } from "@ui/drawer";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store";
+import { fetchAdultPatients, fetchPediatricPatients, AdultPatient, PediatricPatient } from "../store/slices/patientsSlice";
 
 // Common diagnoses for the tag system
 const COMMON_DIAGNOSES = [
@@ -29,9 +32,13 @@ interface AddPatientToClinicFormProps {
     onOpenChange: (open: boolean) => void;
     onSubmit: (data: any) => void;
     clinicName: string;
+    clinicType: string;
 }
 
-export function AddPatientToClinicForm({ open, onOpenChange, onSubmit, clinicName }: AddPatientToClinicFormProps) {
+export function AddPatientToClinicForm({ open, onOpenChange, onSubmit, clinicName, clinicType }: AddPatientToClinicFormProps) {
+    const dispatch = useDispatch<AppDispatch>();
+    const { adultPatients, pediatricPatients, loading: patientsLoading } = useSelector((state: RootState) => state.patients);
+    
     const [diagnosisSearch, setDiagnosisSearch] = useState("");
     const [showDiagnosisDropdown, setShowDiagnosisDropdown] = useState(false);
     const [selectedDiagnoses, setSelectedDiagnoses] = useState<string[]>([]);
@@ -44,13 +51,49 @@ export function AddPatientToClinicForm({ open, onOpenChange, onSubmit, clinicNam
     const [uploadedFile, setUploadedFile] = useState<File | null>(null);
     const [showFollowupPdfUpload, setShowFollowupPdfUpload] = useState(false);
 
+    // Patient search state
+    const [patientSearch, setPatientSearch] = useState("");
+    const [showPatientDropdown, setShowPatientDropdown] = useState(false);
+    const [selectedPatient, setSelectedPatient] = useState<AdultPatient | PediatricPatient | null>(null);
+
+    // Search patients when search term changes
+    useEffect(() => {
+        if (patientSearch.length > 2) {
+            dispatch(fetchAdultPatients({ search: patientSearch, limit: 10 }));
+            dispatch(fetchPediatricPatients({ search: patientSearch, limit: 10 }));
+        }
+    }, [patientSearch, dispatch]);
+
+    // Combine adult and pediatric patients for dropdown
+    const allPatients = [...adultPatients, ...pediatricPatients];
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({
-            selectedDiagnoses,
-            selectedTreatments,
-            uploadedFile,
-        });
+        
+        if (!selectedPatient) {
+            alert("Please select a patient first");
+            return;
+        }
+
+        const submitData = {
+            patientId: selectedPatient._id,
+            patientCode: selectedPatient.patientCode || selectedPatient._id.substring(0, 8),
+            patientName: selectedPatient.patientName,
+            clinicType: clinicType as any,
+            diagnosis: selectedDiagnoses.join(', ') || 'Not specified',
+            treatment: selectedTreatments.join(', ') || 'Not specified',
+            doctor: clinicName,
+        };
+
+        console.log('Submitting clinic visit with patient code:', submitData.patientCode, 'Full data:', submitData);
+        onSubmit(submitData);
+        
+        // Reset form
+        setSelectedPatient(null);
+        setSelectedDiagnoses([]);
+        setSelectedTreatments([]);
+        setUploadedFile(null);
+        setShowFollowupPdfUpload(false);
     };
 
     // Helper functions for tag system
@@ -119,10 +162,52 @@ export function AddPatientToClinicForm({ open, onOpenChange, onSubmit, clinicNam
                                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <Input
                                     id="patient-search-clinic"
+                                    value={patientSearch}
+                                    onChange={(e) => {
+                                        setPatientSearch(e.target.value);
+                                        setShowPatientDropdown(true);
+                                    }}
+                                    onFocus={() => setShowPatientDropdown(true)}
                                     placeholder="Enter patient ID or name to search..."
                                     className="pl-11 h-11 text-sm"
                                 />
+                                {selectedPatient && (
+                                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                                        <User className="w-4 h-4 text-green-600" />
+                                        <span className="text-sm text-green-700 font-medium">{selectedPatient.patientName}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedPatient(null)}
+                                            className="text-red-500 hover:text-red-700"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                )}
                             </div>
+
+                            {showPatientDropdown && patientSearch.length > 2 && allPatients.length > 0 && (
+                                <div className="absolute z-10 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                    {patientsLoading ? (
+                                        <div className="px-3 py-2 text-sm text-slate-500">Searching...</div>
+                                    ) : (
+                                        allPatients.map(patient => (
+                                            <div
+                                                key={patient._id}
+                                                onClick={() => {
+                                                    setSelectedPatient(patient);
+                                                    setPatientSearch("");
+                                                    setShowPatientDropdown(false);
+                                                }}
+                                                className="px-3 py-2 hover:bg-slate-50 cursor-pointer text-sm border-b border-slate-100 last:border-b-0"
+                                            >
+                                                <div className="font-medium text-slate-900">{patient.patientName}</div>
+                                                <div className="text-xs text-slate-500">ID: {patient.patientCode} • Age: {patient.age}</div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Diagnosis - Tag System */}

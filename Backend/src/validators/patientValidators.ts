@@ -152,6 +152,7 @@ export const dispenseMedicineSchema = Joi.object({
 
 export const createClinicVisitSchema = Joi.object({
   patientId: Joi.string().required(),
+  patientCode: Joi.string().required(),
   patientName: Joi.string().required(),
   clinicType: Joi.string()
     .valid(

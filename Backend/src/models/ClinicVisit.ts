@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IClinicVisit extends Document {
   patientId: string;
+  patientCode: string;
   patientName: string;
   clinicType: string;
   visitDate: Date;
@@ -17,6 +18,11 @@ export interface IClinicVisit extends Document {
 const clinicVisitSchema = new Schema<IClinicVisit>(
   {
     patientId: {
+      type: String,
+      required: true,
+      index: true
+    },
+    patientCode: {
       type: String,
       required: true,
       index: true

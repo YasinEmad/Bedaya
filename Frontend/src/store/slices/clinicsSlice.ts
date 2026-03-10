@@ -5,6 +5,7 @@ import { clinicService, ClinicDefinition } from '../../services/clinicService';
 export interface ClinicVisit {
   _id: string;
   patientId: string;
+  patientCode: string;
   patientName: string;
   clinicType: 'internal-medicine' | 'orthopedics' | 'ophthalmology' | 'obstetrics-gynecology' | 'dermatology' | 'dental' | 'cardiology' | 'surgery' | 'ent' | 'pediatrics-clinic';
   visitDate: string;
@@ -49,6 +50,7 @@ export interface ClinicStatistics {
 
 export interface CreateClinicVisitData {
   patientId: string;
+  patientCode: string;
   patientName: string;
   clinicType: ClinicVisit['clinicType'];
   diagnosis: string;
@@ -56,7 +58,7 @@ export interface CreateClinicVisitData {
   medications?: ClinicVisit['medications'];
   followUpDate?: string;
   notes?: string;
-  doctorName: string;
+  doctor: string;
   status: ClinicVisit['status'];
   vitals?: ClinicVisit['vitals'];
 }
@@ -242,7 +244,9 @@ const clinicsSlice = createSlice({
       })
       .addCase(fetchClinicVisitsByType.fulfilled, (state, action) => {
         state.loading = false;
-        state.clinicVisits = action.payload.data;
+        const visitsData = action.payload.data || action.payload;
+        console.log('Fetched clinic visits:', visitsData);
+        state.clinicVisits = Array.isArray(visitsData) ? visitsData : [];
       })
       .addCase(fetchClinicVisitsByType.rejected, (state, action) => {
         state.loading = false;
@@ -284,8 +288,12 @@ const clinicsSlice = createSlice({
       })
       .addCase(createClinicVisit.fulfilled, (state, action) => {
         state.loading = false;
-        state.clinicVisits.unshift(action.payload.data);
-        state.patientClinicVisits.unshift(action.payload.data);
+        // action.payload is the entire response object with { success, data, message, ... }
+        const newVisit = action.payload.data || action.payload;
+        if (newVisit) {
+          state.clinicVisits.unshift(newVisit);
+          state.patientClinicVisits.unshift(newVisit);
+        }
       })
       .addCase(createClinicVisit.rejected, (state, action) => {
         state.loading = false;
