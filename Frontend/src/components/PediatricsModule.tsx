@@ -6,7 +6,7 @@ import { DataTable } from "@ui/data-table";
 import { AddPediatricPatientForm } from "./AddPediatricPatientForm";
 import { toast } from "sonner";
 import { useAppSelector, useAppDispatch } from "../store/hooks";
-import { fetchPediatricPatients, createPediatricPatient } from "../store/slices/patientsSlice";
+import { fetchPediatricPatients, createPediatricPatient, updatePediatricPatient } from "../store/slices/patientsSlice";
 import {
   UserPlus,
   Baby,
@@ -19,6 +19,7 @@ export function PediatricsModule() {
   const dispatch = useAppDispatch();
   const { pediatricPatients, loading, error, pagination } = useAppSelector((state) => state.patients);
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   // Fetch patients on component mount
   useEffect(() => {
@@ -63,20 +64,146 @@ export function PediatricsModule() {
         },
       };
 
-      await dispatch(createPediatricPatient(apiData)).unwrap();
-      toast.success("Pediatric patient added successfully!", {
-        description: `${formData.patientName} has been registered in the system.`
-      });
+      if (selectedPatient) {
+        // Update existing patient
+        await dispatch(updatePediatricPatient({ 
+          patientCode: selectedPatient.patientCode, 
+          patientData: apiData 
+        })).unwrap();
+        toast.success("Pediatric patient updated successfully!", {
+          description: `${formData.patientName} has been updated in the system.`
+        });
+      } else {
+        // Create new patient
+        await dispatch(createPediatricPatient(apiData)).unwrap();
+        toast.success("Pediatric patient added successfully!", {
+          description: `${formData.patientName} has been registered in the system.`
+        });
+      }
       
       setIsAddPatientOpen(false);
+      setSelectedPatient(null);
       
       // Refresh the patient list
       dispatch(fetchPediatricPatients({}));
-    } catch (error) {
+    } catch (error: any) {
+      // show server-provided message if available
       toast.error("Failed to save pediatric patient", {
-        description: "Please try again or contact support if the problem persists."
+        description: error?.message || "Please try again or contact support if the problem persists."
       });
     }
+  };
+
+  const handleRowClick = (patient: any) => {
+    setSelectedPatient(patient);
+    setIsAddPatientOpen(true);
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    setIsAddPatientOpen(isOpen);
+    if (!isOpen) {
+      setSelectedPatient(null);
+    }
+  };
+
+  // Transform patient data from API to form format
+  const transformPatientToFormData = (patient: any) => {
+    return {
+      houseNumber: patient.houseNumber || undefined,
+      code: patient.patientCode || undefined,
+      pov: patient.pov || false,
+      pharmacy: patient.pharmacy || undefined,
+      patientName: patient.patientName || undefined,
+      sex: patient.sex === 'male' ? 'M' : 'F',
+      signature: patient.signature || undefined,
+      age: patient.age?.toString() || undefined,
+      fatherOccupation: patient.fatherOccupation || undefined,
+      mobileNumber: patient.mobileNumber || undefined,
+      fatherEducation: patient.fatherEducation || undefined,
+      motherEducation: patient.motherEducation || undefined,
+      orderOfBirth: patient.orderOfBirth?.toString() || undefined,
+      birthTerm: patient.birthTerm || undefined,
+      pretermWeeks: patient.pretermWeeks?.toString() || undefined,
+      birthModeVD: patient.birthModeVD || false,
+      birthModeCS: patient.birthModeCS || false,
+      csWhy: patient.csWhy || undefined,
+      consanguinity: patient.consanguinity || undefined,
+      nicuAdmission: patient.nicuAdmission || undefined,
+      nicuAdmissionReason: patient.nicuAdmissionReason || undefined,
+      complaints: patient.complaints || [],
+      familyDM: patient.familyHistory?.diabetes || false,
+      familyHTN: patient.familyHistory?.hypertension || false,
+      familySimilarCondition: patient.familyHistory?.similar || false,
+      familySimilarConditionDetails: patient.familyHistory?.similarDetails || undefined,
+      familyGeneticDisease: patient.familyHistory?.genetic || false,
+      familyGeneticDiseaseDetails: patient.familyHistory?.geneticDetails || undefined,
+      pastMedical: patient.pastHistory?.medical || false,
+      pastMedicalDetails: patient.pastHistory?.medicalDetails || undefined,
+      pastAllergy: patient.pastHistory?.allergy || false,
+      pastAllergyDetails: patient.pastHistory?.allergyDetails || undefined,
+      pastICU: patient.pastHistory?.ICU || false,
+      pastSurgical: patient.pastHistory?.surgical || false,
+      pastSurgicalDetails: patient.pastHistory?.surgicalDetails || undefined,
+      pastBloodTransfusion: patient.pastHistory?.bloodTransfusion || false,
+      immunization: patient.immunization || undefined,
+      dietic: patient.dietaryHistory || undefined,
+      devGrossMotor: patient.developmentalHistory?.grossMotor || undefined,
+      devFineMotor: patient.developmentalHistory?.fineMotor || undefined,
+      devLanguage: patient.developmentalHistory?.language || undefined,
+      devSocial: patient.developmentalHistory?.social || undefined,
+      devSphincters: patient.developmentalHistory?.sphincters || undefined,
+      antenatalSTORCH: patient.antenatalHistory?.STORCH || false,
+      antenatalDisease: patient.antenatalHistory?.disease || false,
+      antenatalDiseaseDetails: patient.antenatalHistory?.diseaseDetails || undefined,
+      antenatalIrradiation: patient.antenatalHistory?.irradiation || false,
+      antenatalTeratogenicDrugs: patient.antenatalHistory?.teratogenicDrugs || false,
+      antenatalTeratogenicDrugsDetails: patient.antenatalHistory?.teratogenicDrugsDetails || undefined,
+      antenatalHospitalization: patient.antenatalHistory?.hospitalization || false,
+      prematureRupture: patient.natalHistory?.prematureRupture || false,
+      prolongedDelivery: patient.natalHistory?.prolongedDelivery || false,
+      birthPlace: patient.natalHistory?.birthPlace || undefined,
+      neonatalNICU: patient.neonatalHistory?.NICU || false,
+      neonatalCyanosis: patient.neonatalHistory?.cyanosis || false,
+      neonatalJaundice: patient.neonatalHistory?.jaundice || false,
+      neonatalPallor: patient.neonatalHistory?.pallor || false,
+      neonatalConvulsions: patient.neonatalHistory?.convulsions || false,
+      vitalHR: patient.vitals?.HR?.toString() || undefined,
+      vitalRR: patient.vitals?.RR?.toString() || undefined,
+      vitalBP: patient.vitals?.BP || undefined,
+      vitalTemp: patient.vitals?.temperature?.toString() || undefined,
+      vitalCRT: patient.vitals?.CRT?.toString() || undefined,
+      vitalRBS: patient.vitals?.RBS?.toString() || undefined,
+      vitalHb: patient.vitals?.Hb?.toString() || undefined,
+      spo2: patient.vitals?.SpO2?.toString() || undefined,
+      ricketsScreeningResult: patient.screening?.rickets || undefined,
+      parasitesScreeningResult: patient.screening?.parasites || undefined,
+      pallor: patient.physicalExam?.pallor || false,
+      jaundice: patient.physicalExam?.jaundice || false,
+      cyanosisCentral: patient.physicalExam?.cyanosis?.central || false,
+      cyanosisPeripheral: patient.physicalExam?.cyanosis?.peripheral || false,
+      weight: patient.anthropometry?.weight?.toString() || undefined,
+      height: patient.anthropometry?.height?.toString() || undefined,
+      ofc: patient.anthropometry?.OFC?.toString() || undefined,
+      weightForAge: patient.anthropometry?.weightForAge?.toString() || undefined,
+      heightForAge: patient.anthropometry?.heightForAge?.toString() || undefined,
+      weightForHeight: patient.anthropometry?.weightForHeight?.toString() || undefined,
+      deformity: patient.physicalExam?.deformity || false,
+      cardiacExamination: patient.localExam?.cardiac || undefined,
+      chestExamination: patient.localExam?.chest || undefined,
+      abdominalExamination: patient.localExam?.abdominal || undefined,
+      tonsilsExamination: patient.localExam?.tonsils || undefined,
+      generalExamination: patient.localExam?.general || undefined,
+      referralENT: patient.referrals?.ENT || false,
+      referralCardio: patient.referrals?.cardiology || false,
+      referralOphthalmology: patient.referrals?.ophthalmology || false,
+      referralDerma: patient.referrals?.dermatology || false,
+      referralDental: patient.referrals?.dental || false,
+      referralSurgery: patient.referrals?.surgery || false,
+      referralGyn: patient.referrals?.obstetricGynecology || false,
+      referralPharmacy: patient.referrals?.pharmacy || false,
+      referralGoHome: patient.referrals?.goHome || false,
+      referralOther: patient.referrals?.other || false
+    };
   };
 
   // Transform patient data for the table
@@ -171,9 +298,11 @@ export function PediatricsModule() {
 
       {/* Add Patient Form */}
       <AddPediatricPatientForm
+        key={selectedPatient?.patientCode}
         open={isAddPatientOpen}
-        onOpenChange={setIsAddPatientOpen}
+        onOpenChange={handleOpenChange}
         onSubmit={handleSubmit}
+        initialData={selectedPatient ? transformPatientToFormData(selectedPatient) : undefined}
       />
 
       {/* Stats Summary */}
@@ -244,6 +373,7 @@ export function PediatricsModule() {
               data={transformedPatients} 
               columns={patientColumns}
               pageSize={15}
+              onRowClick={handleRowClick}
             />
           )}
         </CardContent>

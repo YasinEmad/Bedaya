@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAppSelector } from "../store/hooks";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from "./ui/drawer";
 import { Button } from "@ui/button";
@@ -129,9 +129,10 @@ interface AddPediatricPatientFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: PediatricFormData) => void;
+  initialData?: Partial<PediatricFormData>;
 }
 
-export function AddPediatricPatientForm({ open, onOpenChange, onSubmit }: AddPediatricPatientFormProps) {
+export function AddPediatricPatientForm({ open, onOpenChange, onSubmit, initialData }: AddPediatricPatientFormProps) {
   const pediatricComplaints = useAppSelector((state) => state.common.pediatricComplaints);
   const educationOptions = useAppSelector((state) => state.common.educationOptions);
 
@@ -233,6 +234,16 @@ export function AddPediatricPatientForm({ open, onOpenChange, onSubmit }: AddPed
     referralGoHome: false,
     referralOther: false
   });
+
+  // Update form data when initialData changes
+  useEffect(() => {
+    if (initialData) {
+      setFormData(prev => ({
+        ...prev,
+        ...initialData
+      }));
+    }
+  }, [initialData]);
 
   const [complaintSearch, setComplaintSearch] = useState("");
   const [showComplaintDropdown, setShowComplaintDropdown] = useState(false);

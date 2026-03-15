@@ -194,3 +194,8 @@ export const validateSchema = (schema: Joi.ObjectSchema) => {
     return { success: true, value };
   };
 };
+
+export const updatePediatricPatientSchema = createPediatricPatientSchema.fork(
+  ['houseNumber', 'patientCode', 'patientName', 'sex', 'age'],
+  (schema) => schema.optional()
+);

@@ -168,6 +168,83 @@ export function AdultsModule() {
     }
   };
 
+  // Transform patient data from API to form format
+  const transformPatientToFormData = (patient: any) => {
+    return {
+      houseNumber: patient.houseNumber || undefined,
+      code: patient.patientCode || undefined,
+      pov: patient.pov || false,
+      patientName: patient.patientName || undefined,
+      sex: patient.sex === 'male' ? 'M' : 'F',
+      age: patient.age?.toString() || undefined,
+      occupation: patient.occupation || undefined,
+      mobileNumber: patient.mobileNumber || undefined,
+      maritalStatus: patient.maritalStatus || undefined,
+      ifMarriedChildren: patient.ifMarriedChildren?.toString() || undefined,
+      ageOfYoungest: patient.ageOfYoungest?.toString() || undefined,
+      educationLevel: patient.educationLevel || undefined,
+      smoking: patient.smoking?.status === 'yes' ? 'Yes' : patient.smoking?.status === 'former' ? 'Former' : patient.smoking?.status === 'no' ? 'No' : undefined,
+      smokingRate: patient.smoking?.rate || undefined,
+      smokingType: patient.smoking?.type || undefined,
+      smokingOther: undefined,
+      smokingCessation: patient.smoking?.cessationYears ? 'Yes' : 'No',
+      smokingIfYes: patient.smoking?.cessationYears?.toString() || undefined,
+      smokingDuration: patient.smoking?.durationYears?.toString() || undefined,
+      menstruation: patient.menstruation?.regular ? 'Regular' : 'Irregular',
+      gravidaNumber: patient.menstruation?.gravidaNumber?.toString() || undefined,
+      abortionNumber: patient.menstruation?.abortionNumber?.toString() || undefined,
+      contraception: patient.contraception?.using ? 'Yes' : 'No',
+      contraceptionMethod: patient.contraception?.method || [],
+      contraceptionOther: patient.contraception?.other || undefined,
+      complaints: patient.complaints || [],
+      pastHistoryDM: patient.pastHistory?.diabetes || false,
+      pastHistoryHTN: patient.pastHistory?.hypertension || false,
+      pastHistoryHCV: patient.pastHistory?.HCV || false,
+      pastHistoryRHD: patient.pastHistory?.RHD || false,
+      pastHistoryOthers: patient.pastHistory?.others || undefined,
+      allergyYes: patient.allergies?.hasAllergy || false,
+      allergyNo: !patient.allergies?.hasAllergy || false,
+      allergySpecify: patient.allergies?.details || undefined,
+      bloodTransfusion: patient.bloodTransfusion?.received ? 'Yes' : 'No',
+      bloodTransfusionDuration: patient.bloodTransfusion?.duration || undefined,
+      surgicalICU: patient.surgery?.ICU || false,
+      surgicalOperation: patient.surgery?.operation || false,
+      drugsAntiHTN: patient.chronicMedications?.antiHTN || false,
+      drugsOralHypoglycemic: patient.chronicMedications?.oralHypoglycemic || false,
+      drugsAntiepilep: patient.chronicMedications?.antiepileptic || false,
+      drugsAntidiuretic: patient.chronicMedications?.antidiuretic || false,
+      drugsOther: patient.chronicMedications?.others || undefined,
+      familySimilar: patient.familyHistory?.similar || false,
+      familyHTN: patient.familyHistory?.hypertension || false,
+      familyDM: patient.familyHistory?.diabetes || false,
+      familyOther: patient.familyHistory?.others || undefined,
+      vitalBP: patient.vitals?.BP || undefined,
+      vitalHR: patient.vitals?.HR?.toString() || undefined,
+      vitalRBS: patient.vitals?.RBS?.toString() || undefined,
+      vitalTemp: patient.vitals?.temperature?.toString() || undefined,
+      vitalSpo2: patient.vitals?.SpO2?.toString() || undefined,
+      cyanosisPeripheral: patient.physicalExam?.cyanosis?.peripheral || false,
+      cyanosisCentral: patient.physicalExam?.cyanosis?.central || false,
+      jaundice: patient.physicalExam?.jaundice || false,
+      pallor: patient.physicalExam?.pallor || false,
+      weight: patient.anthropometry?.weight?.toString() || undefined,
+      height: patient.anthropometry?.height?.toString() || undefined,
+      bmi: patient.anthropometry?.BMI?.toString() || undefined,
+      diabetesKnown: patient.diabetesScreening === 'known',
+      diabetesUnknown: patient.diabetesScreening === 'unknown',
+      referralIM: patient.referrals?.internalMedicine || false,
+      referralCardio: patient.referrals?.cardiology || false,
+      referralSurgery: patient.referrals?.surgery || false,
+      referralOphth: patient.referrals?.ophthalmology || false,
+      referralObsGyn: patient.referrals?.obstetricGynecology || false,
+      referralENT: patient.referrals?.ENT || false,
+      referralDerma: patient.referrals?.dermatology || false,
+      referralOrtho: patient.referrals?.orthopedics || false,
+      referralDental: patient.referrals?.dental || false,
+      referralGoHome: patient.referrals?.goHome || false,
+    };
+  };
+
   // Transform patient data for the table
   const transformPatientData = (patients: any[]) => {
     return patients.map(patient => ({
@@ -258,18 +335,11 @@ export function AdultsModule() {
 
       {/* Form Drawer */}
       <AddAdultPatientForm 
+        key={selectedPatient?.patientCode}
         open={isAddPatientOpen}
         onOpenChange={handleOpenChange}
         onSubmit={handleSubmit}
-        initialData={selectedPatient ? {
-          houseNumber: selectedPatient.houseNumber,
-          code: selectedPatient.patientCode,
-          pov: selectedPatient.pov,
-          patientName: selectedPatient.patientName,
-          sex: selectedPatient.sex === 'male' ? 'M' : 'F',
-          age: selectedPatient.age?.toString(),
-          ...selectedPatient
-        } : undefined}
+        initialData={selectedPatient ? transformPatientToFormData(selectedPatient) : undefined}
       />
 
       {/* Stats Summary */}

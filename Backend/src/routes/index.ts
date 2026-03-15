@@ -8,6 +8,7 @@ import {
   createAdultPatientSchema,
   updateAdultPatientSchema,
   createPediatricPatientSchema,
+  updatePediatricPatientSchema,
   createLabTestSchema,
   createMedicineSchema,
   dispenseMedicineSchema,
@@ -45,6 +46,7 @@ router.get('/patients/pediatrics', patientController.getPediatricPatients);
 router.get('/patients/pediatrics/:patientId', patientController.getPediatricPatientById);
 router.put(
   '/patients/pediatrics/:patientId',
+  validateRequest(updatePediatricPatientSchema),
   patientController.updatePediatricPatient
 );
 router.delete('/patients/pediatrics/:patientId', patientController.deletePediatricPatient);

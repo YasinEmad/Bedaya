@@ -346,6 +346,21 @@ export const updateAdultPatient = createAsyncThunk(
   }
 );
 
+export const updatePediatricPatient = createAsyncThunk(
+  'patients/updatePediatricPatient',
+  async ({ patientCode, patientData }: { patientCode: string; patientData: any }) => {
+    const response = await fetch(`/api/patients/pediatrics/${patientCode}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patientData),
+    });
+    if (!response.ok) throw new Error('Failed to update pediatric patient');
+    const result = await response.json();
+    if (!result.success) throw new Error(result.message || 'Failed to update pediatric patient');
+    return result.data;
+  }
+);
+
 export const deleteAdultPatient = createAsyncThunk(
   'patients/deleteAdultPatient',
   async (patientCode: string) => {
@@ -477,6 +492,26 @@ const patientsSlice = createSlice({
       .addCase(updateAdultPatient.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to update adult patient';
+      })
+
+      // Update Pediatric Patient
+      .addCase(updatePediatricPatient.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updatePediatricPatient.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.pediatricPatients.findIndex(p => p.patientCode === action.payload.patientCode);
+        if (index !== -1) {
+          state.pediatricPatients[index] = action.payload;
+        }
+        if (state.selectedPatient && state.selectedPatient.patientCode === action.payload.patientCode) {
+          state.selectedPatient = action.payload;
+        }
+      })
+      .addCase(updatePediatricPatient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to update pediatric patient';
       })
 
       // Delete Adult Patient
