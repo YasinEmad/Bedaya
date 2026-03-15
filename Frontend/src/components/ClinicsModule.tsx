@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
-import { fetchAllClinics, fetchClinicVisitsByType, createClinicVisit, ClinicVisit } from "../store/slices/clinicsSlice";
+import { fetchAllClinics, fetchClinicVisitsByType, createClinicVisit, updateClinicVisit, ClinicVisit } from "../store/slices/clinicsSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 import { Badge } from "@ui/badge";
 import { DataTable } from "@ui/data-table";
@@ -46,10 +46,36 @@ export function ClinicsModule({ activeClinic }: ClinicsModuleProps) {
     const { clinics, clinicVisits, loading, error } = useSelector((state: RootState) => state.clinics);
     const [isAddPatientFormOpen, setIsAddPatientFormOpen] = useState(false);
 
+    const treatmentStatuses = ['Pending', 'In Progress', 'Completed'];
+
+    const getNextTreatmentStatus = (current: string) => {
+        const normalized = current.trim();
+        const currentIndex = treatmentStatuses.findIndex(status => status.toLowerCase() === normalized.toLowerCase());
+        if (currentIndex === -1) return treatmentStatuses[0];
+        return treatmentStatuses[(currentIndex + 1) % treatmentStatuses.length];
+    };
+
+    const handleToggleTreatmentStatus = async (visitId: string, currentTreatment: string, index = 0) => {
+        const parts = currentTreatment.split(',').map(p => p.trim());
+        const nextStatus = getNextTreatmentStatus(parts[index] || '');
+        parts[index] = nextStatus;
+        const updatedTreatment = parts.join(', ');
+
+        try {
+            await dispatch(updateClinicVisit({ id: visitId, visitData: { treatment: updatedTreatment } })).unwrap();
+            toast.success('Treatment status updated');
+        } catch (error) {
+            toast.error('Failed to update treatment status', {
+                description: error instanceof Error ? error.message : 'Unknown error occurred',
+            });
+        }
+    };
+
     // Map clinic visits to patient data
     const clinicPatients = clinicVisits.map(visit => {
         console.log('Clinic visit data:', visit);
         return {
+            visitId: visit._id,
             id: visit.patientCode || visit.patientId,
             name: visit.patientName,
             diagnosis: visit.diagnosis,
@@ -87,13 +113,14 @@ export function ClinicsModule({ activeClinic }: ClinicsModuleProps) {
             header: "Treatment",
             width: "flex-1",
             sortable: false,
-            render: (value: any) => (
+            render: (value: any, row: any) => (
                 <div className="flex flex-wrap gap-1.5">
                     {value.split(',').map((treatment: any, idx: number) => (
                         <Badge
                             key={idx}
                             variant="outline"
-                            className="text-xs bg-green-50 text-green-700 border-green-200"
+                            className="cursor-pointer text-xs bg-green-50 text-green-700 border-green-200 hover:bg-green-100"
+                            onClick={() => handleToggleTreatmentStatus(row.visitId, value, idx)}
                         >
                             {treatment.trim()}
                         </Badge>
