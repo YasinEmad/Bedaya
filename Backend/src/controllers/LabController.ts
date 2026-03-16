@@ -76,9 +76,10 @@ export class LabController {
    */
   getRecentTests = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-      const { limit = '10' } = req.query;
+      const { limit = '10', type } = req.query;
       const tests = await labService.getRecentTests(
-        parseInt(limit as string)
+        parseInt(limit as string),
+        type as string
       );
       ApiResponse.success(
         res,

@@ -130,9 +130,10 @@ export class LabService {
   /**
    * Get Recent Lab Tests
    */
-  async getRecentTests(limit: number = 10) {
+  async getRecentTests(limit: number = 10, testType?: string) {
     try {
-      const tests = await LabTest.find()
+      const query = testType ? { testType } : {};
+      const tests = await LabTest.find(query)
         .sort({ testDate: -1 })
         .limit(limit)
         .lean();

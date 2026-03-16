@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store";
+import { fetchBloodLabTests, createLabTest, LabTest } from "../store/slices/labsSlice";
+import { fetchAdultPatients, fetchPediatricPatients, AdultPatient, PediatricPatient } from "../store/slices/patientsSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 import { Badge } from "@ui/badge";
 import { DataTable } from "@ui/data-table";
@@ -23,6 +27,8 @@ import {
     SelectItem,
 } from "@ui/select";
 import { Separator } from "@ui/separator";
+import { toast } from "sonner";
+import { Eye, Loader2 } from "lucide-react";
 
 
 interface BloodLabsModuleProps {
@@ -34,8 +40,15 @@ const defaultBloodResultOptions = ["Normal", "Abnormal", "Not Done"];
 const absentPresentOptions = ["-ve", "+ve", "Absent", "Present", "Not Done"];
 
 export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
+    const dispatch = useDispatch<AppDispatch>();
+    const { bloodTests, loading, error } = useSelector((state: RootState) => state.labs);
+    const { adultPatients, pediatricPatients, loading: patientsLoading } = useSelector((state: RootState) => state.patients);
     const [isBloodDialogOpen, setIsBloodDialogOpen] = useState(false);
+    const [isPatientDetailsOpen, setIsPatientDetailsOpen] = useState(false);
+    const [selectedPatient, setSelectedPatient] = useState<LabTest | null>(null);
     const [bloodPatientName, setBloodPatientName] = useState("");
+    const [bloodPatientId, setBloodPatientId] = useState("");
+    const [selectedPatientCode, setSelectedPatientCode] = useState("");
 
     // Test name
     const [cbc, setCbc] = useState("");
@@ -109,108 +122,190 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
     const [asot, setAsot] = useState("");
     const [crp, setCrp] = useState("");
 
-    const handleSubmitBlood = (event: React.FormEvent) => {
+    const handleSubmitBlood = async (event: React.FormEvent) => {
         event.preventDefault();
-        console.log("Adding patient to blood lab:", {
+        
+        if (!bloodPatientId || !bloodPatientName) {
+            toast.error('Patient ID and name are required');
+            return;
+        }
+
+        const testData = {
+            patientId: bloodPatientId,
             patientName: bloodPatientName,
-            wbcs, lymphocytesHash, midRangeHash, granulocytesHash,
-            lymphocytesPercentage, midRangePercentage, granulocytesPercentage,
-            rbcs, hemoglobin, hematocrit, mcv, mch, mchc, rdwCv, rdwSd,
-            platelets, mpv, pdw, pct, pLcc, pLcr, esr,
-            altGpt, astGot, alkalinePhosphatase, albumin, totalBilirubin, directBilirubin,
-            ptInr, ptTime, ptPercentage, ptt,
-            creatinine, urea, uricAcid,
-            cholesterol, tg, hdl, ldl,
-            kPlus, caPlusPlus, naPlus,
-            glucoseRandom, glucoseFasting, glucosePostPrandial, hba1c,
-            hbv, hcv, alfaFetoprotein, psa, bHcg, antiD, rheumatoidFactor, asot, crp
-        });
-        setIsBloodDialogOpen(false);
-        // Reset all states
-        setBloodPatientName("");
-        setWbcs(""); setLymphocytesHash(""); setMidRangeHash(""); setGranulocytesHash("");
-        setLymphocytesPercentage(""); setMidRangePercentage(""); setGranulocytesPercentage("");
-        setRbcs(""); setHemoglobin(""); setHematocrit(""); setMcv(""); setMch(""); setMchc(""); setRdwCv(""); setRdwSd("");
-        setPlatelets(""); setMpv(""); setPdw(""); setPct(""); setPLcc(""); setPLcr(""); setEsr("");
-        setAltGpt(""); setAstGot(""); setAlkalinePhosphatase(""); setAlbumin(""); setTotalBilirubin(""); setDirectBilirubin("");
-        setPtInr(""); setPtTime(""); setPtPercentage(""); setPtt("");
-        setCreatinine(""); setUrea(""); setUricAcid("");
-        setCholesterol(""); setTg(""); setHdl(""); setLdl("");
-        setKPlus(""); setCaPlusPlus(""); setNaPlus("");
-        setGlucoseRandom(""); setGlucoseFasting(""); setGlucosePostPrandial(""); setHba1c("");
-        setHbv(""); setHcv(""); setAlfaFetoprotein(""); setPsa(""); setBHcg(""); setAntiD(""); setRheumatoidFactor(""); setAsot(""); setCrp("");
+            testType: 'blood' as const,
+            CBC: {
+                WBCs: wbcs ? parseFloat(wbcs) : undefined,
+                RBCs: rbcs ? parseFloat(rbcs) : undefined,
+                hemoglobin: hemoglobin ? parseFloat(hemoglobin) : undefined,
+                hematocrit: hematocrit ? parseFloat(hematocrit) : undefined,
+                platelets: platelets ? parseFloat(platelets) : undefined,
+            },
+            liverFunction: {
+                ALT: altGpt ? parseFloat(altGpt) : undefined,
+                AST: astGot ? parseFloat(astGot) : undefined,
+                alkalinePhosphatase: alkalinePhosphatase ? parseFloat(alkalinePhosphatase) : undefined,
+                totalBilirubin: totalBilirubin ? parseFloat(totalBilirubin) : undefined,
+                directBilirubin: directBilirubin ? parseFloat(directBilirubin) : undefined,
+                albumin: albumin ? parseFloat(albumin) : undefined,
+            },
+            coagulation: {
+                PTInr: ptInr ? parseFloat(ptInr) : undefined,
+                PTTime: ptTime ? parseFloat(ptTime) : undefined,
+                PTPercentage: ptPercentage ? parseFloat(ptPercentage) : undefined,
+                PTT: ptt ? parseFloat(ptt) : undefined,
+            },
+            kidneyFunction: {
+                creatinine: creatinine ? parseFloat(creatinine) : undefined,
+                urea: urea ? parseFloat(urea) : undefined,
+                uricAcid: uricAcid ? parseFloat(uricAcid) : undefined,
+            },
+            lipidProfile: {
+                cholesterol: cholesterol ? parseFloat(cholesterol) : undefined,
+                triglycerides: tg ? parseFloat(tg) : undefined,
+                HDL: hdl ? parseFloat(hdl) : undefined,
+                LDL: ldl ? parseFloat(ldl) : undefined,
+            },
+            electrolytes: {
+                potassium: kPlus ? parseFloat(kPlus) : undefined,
+                calcium: caPlusPlus ? parseFloat(caPlusPlus) : undefined,
+                sodium: naPlus ? parseFloat(naPlus) : undefined,
+            },
+            glucose: {
+                random: glucoseRandom ? parseFloat(glucoseRandom) : undefined,
+                fasting: glucoseFasting ? parseFloat(glucoseFasting) : undefined,
+                postPrandial: glucosePostPrandial ? parseFloat(glucosePostPrandial) : undefined,
+                HbA1C: hba1c ? parseFloat(hba1c) : undefined,
+            },
+            serology: {
+                HBV: hbv || undefined,
+                HCV: hcv || undefined,
+                alphaFetoprotein: alfaFetoprotein ? parseFloat(alfaFetoprotein) : undefined,
+                PSA: psa ? parseFloat(psa) : undefined,
+                betaHCG: bHcg ? parseFloat(bHcg) : undefined,
+                antiD: antiD || undefined,
+            },
+            inflammatory: {
+                rheumatoidFactor: rheumatoidFactor ? parseFloat(rheumatoidFactor) : undefined,
+                ASOT: asot ? parseFloat(asot) : undefined,
+                CRP: crp ? parseFloat(crp) : undefined,
+            },
+        };
+
+        try {
+            await dispatch(createLabTest(testData)).unwrap();
+            toast.success('Blood test added successfully');
+            setIsBloodDialogOpen(false);
+            // Reset form
+            setBloodPatientName("");
+            setBloodPatientId("");
+            setSelectedPatientCode("");
+            // Reset all test fields...
+        } catch (error) {
+            toast.error('Failed to add blood test', {
+                description: error instanceof Error ? error.message : 'Unknown error occurred',
+            });
+        }
     };
 
-    const renderLabStatusBadge = (value: "empty" | "in" | "out") => {
-        if (value === "in") {
+    const handlePatientSelect = (patientCode: string) => {
+        const allPatients = [...adultPatients, ...pediatricPatients];
+        const patient = allPatients.find(p => p.patientCode === patientCode);
+        if (patient) {
+            setSelectedPatientCode(patientCode);
+            setBloodPatientId(patient.patientCode);
+            setBloodPatientName(patient.patientName);
+        }
+    };
+
+    // Fetch blood tests on component mount
+    useEffect(() => {
+        dispatch(fetchBloodLabTests());
+    }, [dispatch]);
+
+    // Fetch patients when dialog opens
+    useEffect(() => {
+        if (isBloodDialogOpen) {
+            dispatch(fetchAdultPatients({}));
+            dispatch(fetchPediatricPatients({}));
+            // Reset form when dialog opens
+            setBloodPatientName("");
+            setBloodPatientId("");
+            setSelectedPatientCode("");
+        }
+    }, [isBloodDialogOpen, dispatch]);
+
+    const renderLabStatusBadge = (status: LabTest['status']) => {
+        if (status === "in") {
             return <Badge variant="default" className="bg-red-500 hover:bg-red-500">In</Badge>;
         }
-        if (value === "out") {
+        if (status === "out") {
             return <Badge variant="default" className="bg-green-500 hover:bg-green-500">Out</Badge>;
+        }
+        if (status === "pending") {
+            return <Badge variant="default" className="bg-yellow-500 hover:bg-yellow-500">Pending</Badge>;
+        }
+        if (status === "completed") {
+            return <Badge variant="default" className="bg-blue-500 hover:bg-blue-500">Completed</Badge>;
         }
         return null;
     };
 
-    const generatePatients = () => {
-        const firstNames = ["Maria", "John", "Sarah", "Ahmed", "Emma", "David", "Lisa", "Robert", "Anna", "Michael", "Elena", "James", "Sofia", "Daniel", "Carmen"];
-        const lastNames = ["Rodriguez", "Smith", "Johnson", "Hassan", "Wilson", "Brown", "Garcia", "Lee", "Martinez", "Taylor", "Anderson", "Thompson", "White", "Martin", "Clark"];
-
-        const getRandomLabStatus = () => {
-            const statuses = ["empty", "in", "out"];
-            return statuses[Math.floor(Math.random() * statuses.length)];
-        };
-
-        const patients = [];
-        for (let i = 1; i <= 200; i++) {
-            const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
-            const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
-
-            const bloodStatus = getRandomLabStatus();
-
-            patients.push({
-                id: `P${String(i).padStart(3, '0')}`,
-                name: `${firstName} ${lastName}`,
-                blood: bloodStatus,
-            });
-        }
-        return patients;
+    const handleViewPatientDetails = (test: LabTest) => {
+        setSelectedPatient(test);
+        setIsPatientDetailsOpen(true);
     };
-
-    const allPatients = generatePatients();
-
-    const filteredPatients = allPatients.filter(patient => {
-        return patient.blood === "in" || patient.blood === "out";
-    });
 
     const getDynamicLabColumns = () => {
         const commonColumns = [
             {
-                key: 'id',
-                header: 'ID',
+                key: 'patientId',
+                header: 'Patient ID',
                 width: 'w-24',
                 render: (value: string) => (
                     <span className="font-mono text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded font-medium">{value}</span>
                 )
             },
             {
-                key: 'name',
+                key: 'patientName',
                 header: 'Name',
                 width: 'w-48',
                 render: (value: string) => (
                     <span className="font-medium text-sm text-slate-900">{value}</span>
                 )
             },
-        ];
-
-        return [
-            ...commonColumns,
             {
-                key: 'blood',
-                header: 'Blood',
-                width: 'w-16 text-center',
-                render: (value: "empty" | "in" | "out") => renderLabStatusBadge(value)
+                key: 'testDate',
+                header: 'Test Date',
+                width: 'w-32',
+                render: (value: string) => (
+                    <span className="text-sm text-slate-600">{new Date(value).toLocaleDateString()}</span>
+                )
+            },
+            {
+                key: 'status',
+                header: 'Status',
+                width: 'w-20 text-center',
+                render: (value: LabTest['status']) => renderLabStatusBadge(value)
+            },
+            {
+                key: 'actions',
+                header: 'Actions',
+                width: 'w-20',
+                render: (_value: any, row: LabTest) => (
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewPatientDetails(row)}
+                        className="h-8 px-2"
+                    >
+                        <Eye className="w-4 h-4" />
+                    </Button>
+                )
             },
         ];
+
+        return commonColumns;
     };
 
     const labColumns = getDynamicLabColumns();
@@ -222,6 +317,32 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
         const sectionName = section.replace("labs-", "").replace(/_/g, ' ');
         return `${sectionName.charAt(0).toUpperCase() + sectionName.slice(1)} Lab`;
     };
+
+    // Loading state
+    if (loading) {
+        return (
+            <Card>
+                <CardContent className="p-8 text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                    <p className="text-slate-600">Loading blood lab tests...</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <Card>
+                <CardContent className="p-8 text-center">
+                    <p className="text-red-600 mb-4">{error}</p>
+                    <Button onClick={() => dispatch(fetchBloodLabTests())}>
+                        Try Again
+                    </Button>
+                </CardContent>
+            </Card>
+        );
+    }
 
     return (
         <Card>
@@ -241,6 +362,24 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                         <form onSubmit={handleSubmitBlood}>
                             <div className="flex flex-col gap-4 py-4">
                                 <div className="flex items-center gap-4">
+                                    <Label htmlFor="patient-select" className="text-left w-40">
+                                        Select Patient
+                                    </Label>
+                                    <Select value={selectedPatientCode} onValueChange={handlePatientSelect}>
+                                        <SelectTrigger className="flex-1">
+                                            <SelectValue placeholder="Choose a patient..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {[...adultPatients, ...pediatricPatients].map((patient) => (
+                                                <SelectItem key={patient.patientCode} value={patient.patientCode}>
+                                                    {patient.patientCode} - {patient.patientName}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex items-center gap-4">
                                     <Label htmlFor="blood-patient-name" className="text-left w-40">
                                         Patient Name
                                     </Label>
@@ -248,6 +387,18 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                                         id="blood-patient-name"
                                         value={bloodPatientName}
                                         onChange={(e) => setBloodPatientName(e.target.value)}
+                                        className="flex-1"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <Label htmlFor="blood-patient-id" className="text-left w-40">
+                                        Patient ID
+                                    </Label>
+                                    <Input
+                                        id="blood-patient-id"
+                                        value={bloodPatientId}
+                                        onChange={(e) => setBloodPatientId(e.target.value)}
                                         className="flex-1"
                                     />
                                 </div>
@@ -915,9 +1066,130 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                         </form>
                     </DialogContent>
                 </Dialog>
+
+                {/* Patient Details Modal */}
+                <Dialog open={isPatientDetailsOpen} onOpenChange={setIsPatientDetailsOpen}>
+                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                            <DialogTitle>Patient Lab Test Details</DialogTitle>
+                            <DialogDescription>
+                                Detailed information about the patient's blood test results
+                            </DialogDescription>
+                        </DialogHeader>
+                        {selectedPatient && (
+                            <div className="space-y-6">
+                                {/* Patient Info */}
+                                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-600">Patient ID</Label>
+                                        <p className="font-mono text-sm">{selectedPatient.patientId}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-600">Patient Name</Label>
+                                        <p className="font-medium">{selectedPatient.patientName}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-600">Test Date</Label>
+                                        <p>{new Date(selectedPatient.testDate).toLocaleDateString()}</p>
+                                    </div>
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-600">Status</Label>
+                                        <div className="mt-1">{renderLabStatusBadge(selectedPatient.status)}</div>
+                                    </div>
+                                </div>
+
+                                {/* CBC Results */}
+                                {selectedPatient.CBC && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold mb-4">Complete Blood Count (CBC)</h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {selectedPatient.CBC.WBCs && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">WBCs</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.WBCs}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.CBC.RBCs && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">RBCs</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.RBCs}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.CBC.hemoglobin && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">Hemoglobin</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.hemoglobin}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.CBC.hematocrit && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">Hematocrit</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.hematocrit}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.CBC.platelets && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">Platelets</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.platelets}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* LFT Results */}
+                                {selectedPatient.LFT && (
+                                    <div>
+                                        <h3 className="text-lg font-semibold mb-4">Liver Function Test (LFT)</h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {selectedPatient.LFT.ALT && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">ALT</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.ALT}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.LFT.AST && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">AST</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.AST}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.LFT.ALP && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">ALP</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.ALP}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.LFT.totalBilirubin && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">Total Bilirubin</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.totalBilirubin}</p>
+                                                </div>
+                                            )}
+                                            {selectedPatient.LFT.albumin && (
+                                                <div className="p-3 border rounded">
+                                                    <Label className="text-sm font-medium">Albumin</Label>
+                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.albumin}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Other test results can be added similarly */}
+                                {selectedPatient.notes && (
+                                    <div>
+                                        <Label className="text-sm font-medium text-slate-600">Notes</Label>
+                                        <p className="mt-1 p-3 bg-slate-50 rounded">{selectedPatient.notes}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </DialogContent>
+                </Dialog>
             </CardHeader>
             <CardContent>
-                <DataTable columns={labColumns} data={filteredPatients} />
+                <DataTable columns={labColumns} data={bloodTests} />
             </CardContent>
         </Card>
     );

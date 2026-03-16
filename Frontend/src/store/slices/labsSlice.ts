@@ -53,22 +53,54 @@ export interface LabTest {
     directBilirubin?: number;
     albumin?: number;
   };
-  RFT?: {
-    urea?: number;
+  liverFunction?: {
+    ALT?: number;
+    AST?: number;
+    alkalinePhosphatase?: number;
+    totalBilirubin?: number;
+    directBilirubin?: number;
+    albumin?: number;
+  };
+  coagulation?: {
+    PTInr?: number;
+    PTTime?: number;
+    PTPercentage?: number;
+    PTT?: number;
+  };
+  kidneyFunction?: {
     creatinine?: number;
-    eGFR?: number;
+    urea?: number;
+    uricAcid?: number;
   };
   lipidProfile?: {
-    totalCholesterol?: number;
+    cholesterol?: number;
+    triglycerides?: number;
     HDL?: number;
     LDL?: number;
-    triglycerides?: number;
   };
-  otherTests?: {
-    ESR?: number;
+  electrolytes?: {
+    potassium?: number;
+    calcium?: number;
+    sodium?: number;
+  };
+  glucose?: {
+    random?: number;
+    fasting?: number;
+    postPrandial?: number;
+    HbA1C?: number;
+  };
+  serology?: {
+    HBV?: string;
+    HCV?: string;
+    alphaFetoprotein?: number;
+    PSA?: number;
+    betaHCG?: number;
+    antiD?: string;
+  };
+  inflammatory?: {
+    rheumatoidFactor?: number;
+    ASOT?: number;
     CRP?: number;
-    RBS?: number;
-    HbA1c?: number;
   };
   notes?: string;
   technician?: string;
@@ -95,21 +127,27 @@ export interface LabStatistics {
 export interface CreateLabTestData {
   patientId: string;
   patientName: string;
+  testDate?: string;
   testType: 'blood' | 'urine' | 'stool' | 'cr_urea';
   CBC?: LabTest['CBC'];
+  liverFunction?: LabTest['liverFunction'];
+  coagulation?: LabTest['coagulation'];
+  kidneyFunction?: LabTest['kidneyFunction'];
+  lipidProfile?: LabTest['lipidProfile'];
+  electrolytes?: LabTest['electrolytes'];
+  glucose?: LabTest['glucose'];
+  serology?: LabTest['serology'];
+  inflammatory?: LabTest['inflammatory'];
   urineAnalysis?: LabTest['urineAnalysis'];
   stoolAnalysis?: LabTest['stoolAnalysis'];
   crUrea?: LabTest['crUrea'];
-  LFT?: LabTest['LFT'];
-  RFT?: LabTest['RFT'];
-  lipidProfile?: LabTest['lipidProfile'];
-  otherTests?: LabTest['otherTests'];
   notes?: string;
 }
 
 interface LabsState {
   labTests: LabTest[];
   recentTests: LabTest[];
+  bloodTests: LabTest[];
   selectedTest: LabTest | null;
   statistics: LabStatistics | null;
   loading: boolean;
@@ -140,6 +178,15 @@ export const fetchRecentLabTests = createAsyncThunk(
   async () => {
     const response = await fetch('/api/labs/recent');
     if (!response.ok) throw new Error('Failed to fetch recent lab tests');
+    return response.json();
+  }
+);
+
+export const fetchBloodLabTests = createAsyncThunk(
+  'labs/fetchBloodLabTests',
+  async () => {
+    const response = await fetch('/api/labs/recent?type=blood');
+    if (!response.ok) throw new Error('Failed to fetch blood lab tests');
     return response.json();
   }
 );
@@ -193,6 +240,7 @@ export const deleteLabTest = createAsyncThunk(
 const initialState: LabsState = {
   labTests: [],
   recentTests: [],
+  bloodTests: [],
   selectedTest: null,
   statistics: null,
   loading: false,
@@ -216,6 +264,7 @@ const labsSlice = createSlice({
     resetLabs: (state) => {
       state.labTests = [];
       state.recentTests = [];
+      state.bloodTests = [];
       state.selectedTest = null;
       state.statistics = null;
       state.filters = {};
@@ -260,6 +309,20 @@ const labsSlice = createSlice({
       .addCase(fetchRecentLabTests.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch recent lab tests';
+      })
+
+      // Fetch Blood Lab Tests
+      .addCase(fetchBloodLabTests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBloodLabTests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.bloodTests = action.payload.data;
+      })
+      .addCase(fetchBloodLabTests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch blood lab tests';
       })
 
       // Fetch Lab Statistics
