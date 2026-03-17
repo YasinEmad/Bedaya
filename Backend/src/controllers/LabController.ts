@@ -9,8 +9,13 @@ export class LabController {
    */
   createLabTest = asyncHandler(
     async (req: Request, res: Response, _next: NextFunction) => {
-      const labTest = await labService.createLabTest(req.body);
-      ApiResponse.created(res, labTest, 'Lab test recorded successfully');
+      try {
+        const labTest = await labService.createLabTest(req.body);
+        ApiResponse.created(res, labTest, 'Lab test recorded successfully');
+      } catch (error) {
+        console.error('Error creating lab test:', error);
+        throw error; // Re-throw to let asyncHandler handle it
+      }
     }
   );
 

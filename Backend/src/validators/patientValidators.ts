@@ -94,6 +94,7 @@ export const createLabTestSchema = Joi.object({
   testType: Joi.string().valid('blood', 'urine', 'stool').required().messages({
     'any.only': 'Test type must be blood, urine, or stool'
   }),
+  status: Joi.string().valid('pending', 'completed', 'in', 'out').default('pending').optional(),
   CBC: Joi.object({
     WBCs: Joi.number().optional(),
     RBCs: Joi.number().optional(),

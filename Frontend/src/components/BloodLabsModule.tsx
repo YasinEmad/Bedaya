@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store";
-import { fetchBloodLabTests, createLabTest, LabTest } from "../store/slices/labsSlice";
+import { fetchBloodLabTests, createLabTest, updateLabTest, LabTest } from "../store/slices/labsSlice";
 import { fetchAdultPatients, fetchPediatricPatients, AdultPatient, PediatricPatient } from "../store/slices/patientsSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@ui/card";
 import { Badge } from "@ui/badge";
@@ -44,8 +44,8 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
     const { bloodTests, loading, error } = useSelector((state: RootState) => state.labs);
     const { adultPatients, pediatricPatients, loading: patientsLoading } = useSelector((state: RootState) => state.patients);
     const [isBloodDialogOpen, setIsBloodDialogOpen] = useState(false);
-    const [isPatientDetailsOpen, setIsPatientDetailsOpen] = useState(false);
-    const [selectedPatient, setSelectedPatient] = useState<LabTest | null>(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingTestId, setEditingTestId] = useState<string | null>(null);
     const [bloodPatientName, setBloodPatientName] = useState("");
     const [bloodPatientId, setBloodPatientId] = useState("");
     const [selectedPatientCode, setSelectedPatientCode] = useState("");
@@ -193,19 +193,84 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
         };
 
         try {
-            await dispatch(createLabTest(testData)).unwrap();
-            toast.success('Blood test added successfully');
+            if (isEditing && editingTestId) {
+                await dispatch(updateLabTest({ id: editingTestId, testData })).unwrap();
+                toast.success('Blood test updated successfully');
+            } else {
+                await dispatch(createLabTest(testData)).unwrap();
+                toast.success('Blood test added successfully');
+            }
             setIsBloodDialogOpen(false);
             // Reset form
-            setBloodPatientName("");
-            setBloodPatientId("");
-            setSelectedPatientCode("");
-            // Reset all test fields...
+            resetForm();
         } catch (error) {
-            toast.error('Failed to add blood test', {
+            toast.error(`Failed to ${isEditing ? 'update' : 'add'} blood test`, {
                 description: error instanceof Error ? error.message : 'Unknown error occurred',
             });
         }
+    };
+
+    const resetForm = () => {
+        setBloodPatientName("");
+        setBloodPatientId("");
+        setSelectedPatientCode("");
+        setWbcs("");
+        setEsr("");
+        setLymphocytesHash("");
+        setMidRangeHash("");
+        setGranulocytesHash("");
+        setLymphocytesPercentage("");
+        setMidRangePercentage("");
+        setGranulocytesPercentage("");
+        setRbcs("");
+        setHemoglobin("");
+        setHematocrit("");
+        setMcv("");
+        setMch("");
+        setMchc("");
+        setRdwCv("");
+        setRdwSd("");
+        setPlatelets("");
+        setMpv("");
+        setPdw("");
+        setPct("");
+        setPLcc("");
+        setPLcr("");
+        setAltGpt("");
+        setAstGot("");
+        setAlkalinePhosphatase("");
+        setAlbumin("");
+        setTotalBilirubin("");
+        setDirectBilirubin("");
+        setPtInr("");
+        setPtTime("");
+        setPtPercentage("");
+        setPtt("");
+        setCreatinine("");
+        setUrea("");
+        setUricAcid("");
+        setCholesterol("");
+        setTg("");
+        setHdl("");
+        setLdl("");
+        setKPlus("");
+        setCaPlusPlus("");
+        setNaPlus("");
+        setGlucoseRandom("");
+        setGlucoseFasting("");
+        setGlucosePostPrandial("");
+        setHba1c("");
+        setHbv("");
+        setHcv("");
+        setAlfaFetoprotein("");
+        setPsa("");
+        setBHcg("");
+        setAntiD("");
+        setRheumatoidFactor("");
+        setAsot("");
+        setCrp("");
+        setIsEditing(false);
+        setEditingTestId(null);
     };
 
     const handlePatientSelect = (patientCode: string) => {
@@ -228,10 +293,6 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
         if (isBloodDialogOpen) {
             dispatch(fetchAdultPatients({}));
             dispatch(fetchPediatricPatients({}));
-            // Reset form when dialog opens
-            setBloodPatientName("");
-            setBloodPatientId("");
-            setSelectedPatientCode("");
         }
     }, [isBloodDialogOpen, dispatch]);
 
@@ -252,8 +313,71 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
     };
 
     const handleViewPatientDetails = (test: LabTest) => {
-        setSelectedPatient(test);
-        setIsPatientDetailsOpen(true);
+        // Populate form fields with existing test data
+        setBloodPatientId(test.patientId);
+        setBloodPatientName(test.patientName);
+        setSelectedPatientCode(test.patientId);
+
+        // CBC fields
+        setWbcs(test.CBC?.WBCs?.toString() || "");
+        setRbcs(test.CBC?.RBCs?.toString() || "");
+        setHemoglobin(test.CBC?.hemoglobin?.toString() || "");
+        setHematocrit(test.CBC?.hematocrit?.toString() || "");
+        setPlatelets(test.CBC?.platelets?.toString() || "");
+
+        // Liver Function fields
+        setAltGpt(test.liverFunction?.ALT?.toString() || "");
+        setAstGot(test.liverFunction?.AST?.toString() || "");
+        setAlkalinePhosphatase(test.liverFunction?.alkalinePhosphatase?.toString() || "");
+        setAlbumin(test.liverFunction?.albumin?.toString() || "");
+        setTotalBilirubin(test.liverFunction?.totalBilirubin?.toString() || "");
+        setDirectBilirubin(test.liverFunction?.directBilirubin?.toString() || "");
+
+        // Coagulation fields
+        setPtInr(test.coagulation?.PTInr?.toString() || "");
+        setPtTime(test.coagulation?.PTTime?.toString() || "");
+        setPtPercentage(test.coagulation?.PTPercentage?.toString() || "");
+        setPtt(test.coagulation?.PTT?.toString() || "");
+
+        // Kidney Function fields
+        setCreatinine(test.kidneyFunction?.creatinine?.toString() || "");
+        setUrea(test.kidneyFunction?.urea?.toString() || "");
+        setUricAcid(test.kidneyFunction?.uricAcid?.toString() || "");
+
+        // Lipid Profile fields
+        setCholesterol(test.lipidProfile?.cholesterol?.toString() || "");
+        setTg(test.lipidProfile?.triglycerides?.toString() || "");
+        setHdl(test.lipidProfile?.HDL?.toString() || "");
+        setLdl(test.lipidProfile?.LDL?.toString() || "");
+
+        // Electrolytes fields
+        setKPlus(test.electrolytes?.potassium?.toString() || "");
+        setCaPlusPlus(test.electrolytes?.calcium?.toString() || "");
+        setNaPlus(test.electrolytes?.sodium?.toString() || "");
+
+        // Glucose fields
+        setGlucoseRandom(test.glucose?.random?.toString() || "");
+        setGlucoseFasting(test.glucose?.fasting?.toString() || "");
+        setGlucosePostPrandial(test.glucose?.postPrandial?.toString() || "");
+        setHba1c(test.glucose?.HbA1C?.toString() || "");
+
+        // Serology fields
+        setHbv(test.serology?.HBV || "");
+        setHcv(test.serology?.HCV || "");
+        setAlfaFetoprotein(test.serology?.alphaFetoprotein?.toString() || "");
+        setPsa(test.serology?.PSA?.toString() || "");
+        setBHcg(test.serology?.betaHCG?.toString() || "");
+        setAntiD(test.serology?.antiD || "");
+
+        // Inflammatory fields
+        setRheumatoidFactor(test.inflammatory?.rheumatoidFactor?.toString() || "");
+        setAsot(test.inflammatory?.ASOT?.toString() || "");
+        setCrp(test.inflammatory?.CRP?.toString() || "");
+
+        // Set editing state
+        setIsEditing(true);
+        setEditingTestId(test._id);
+        setIsBloodDialogOpen(true);
     };
 
     const getDynamicLabColumns = () => {
@@ -350,13 +474,13 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                 <CardTitle>{getLabSectionTitle(activeLabSection)}</CardTitle>
                 <Dialog open={isBloodDialogOpen} onOpenChange={setIsBloodDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button className="ml-auto">Add Patient to Blood Lab</Button>
+                        <Button className="ml-auto" onClick={() => { resetForm(); setIsBloodDialogOpen(true); }}>Add Patient to Blood Lab</Button>
                     </DialogTrigger>
                     <DialogContent className="fixed inset-0 w-screen h-screen max-w-none rounded-none p-0 translate-x-0 translate-y-0 overflow-y-auto bg-white">
                         <DialogHeader>
-                            <DialogTitle>Add Patient to Blood Lab</DialogTitle>
+                            <DialogTitle>{isEditing ? 'Edit Blood Lab Test' : 'Add Patient to Blood Lab'}</DialogTitle>
                             <DialogDescription>
-                                Enter patient details and assign their blood lab status.
+                                {isEditing ? 'Update the patient\'s blood lab test results.' : 'Enter patient details and assign their blood lab status.'}
                             </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleSubmitBlood}>
@@ -1061,130 +1185,9 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                                 <Separator className="my-4" /> {/* <--- NEW SEPARATOR */}
                             </div>
                             <DialogFooter>
-                                <Button type="submit">Save changes</Button>
+                                <Button type="submit">{isEditing ? 'Update Test' : 'Add Test'}</Button>
                             </DialogFooter>
                         </form>
-                    </DialogContent>
-                </Dialog>
-
-                {/* Patient Details Modal */}
-                <Dialog open={isPatientDetailsOpen} onOpenChange={setIsPatientDetailsOpen}>
-                    <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                            <DialogTitle>Patient Lab Test Details</DialogTitle>
-                            <DialogDescription>
-                                Detailed information about the patient's blood test results
-                            </DialogDescription>
-                        </DialogHeader>
-                        {selectedPatient && (
-                            <div className="space-y-6">
-                                {/* Patient Info */}
-                                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-600">Patient ID</Label>
-                                        <p className="font-mono text-sm">{selectedPatient.patientId}</p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-600">Patient Name</Label>
-                                        <p className="font-medium">{selectedPatient.patientName}</p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-600">Test Date</Label>
-                                        <p>{new Date(selectedPatient.testDate).toLocaleDateString()}</p>
-                                    </div>
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-600">Status</Label>
-                                        <div className="mt-1">{renderLabStatusBadge(selectedPatient.status)}</div>
-                                    </div>
-                                </div>
-
-                                {/* CBC Results */}
-                                {selectedPatient.CBC && (
-                                    <div>
-                                        <h3 className="text-lg font-semibold mb-4">Complete Blood Count (CBC)</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            {selectedPatient.CBC.WBCs && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">WBCs</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.WBCs}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.CBC.RBCs && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">RBCs</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.RBCs}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.CBC.hemoglobin && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">Hemoglobin</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.hemoglobin}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.CBC.hematocrit && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">Hematocrit</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.hematocrit}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.CBC.platelets && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">Platelets</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.CBC.platelets}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* LFT Results */}
-                                {selectedPatient.LFT && (
-                                    <div>
-                                        <h3 className="text-lg font-semibold mb-4">Liver Function Test (LFT)</h3>
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                            {selectedPatient.LFT.ALT && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">ALT</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.ALT}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.LFT.AST && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">AST</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.AST}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.LFT.ALP && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">ALP</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.ALP}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.LFT.totalBilirubin && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">Total Bilirubin</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.totalBilirubin}</p>
-                                                </div>
-                                            )}
-                                            {selectedPatient.LFT.albumin && (
-                                                <div className="p-3 border rounded">
-                                                    <Label className="text-sm font-medium">Albumin</Label>
-                                                    <p className="text-lg font-semibold">{selectedPatient.LFT.albumin}</p>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Other test results can be added similarly */}
-                                {selectedPatient.notes && (
-                                    <div>
-                                        <Label className="text-sm font-medium text-slate-600">Notes</Label>
-                                        <p className="mt-1 p-3 bg-slate-50 rounded">{selectedPatient.notes}</p>
-                                    </div>
-                                )}
-                            </div>
-                        )}
                     </DialogContent>
                 </Dialog>
             </CardHeader>

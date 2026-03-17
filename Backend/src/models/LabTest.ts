@@ -5,6 +5,7 @@ export interface ILabTest extends Document {
   patientName: string;
   testDate: Date;
   testType: 'blood' | 'urine' | 'stool';
+  status: 'pending' | 'completed' | 'in' | 'out';
 
   // CBC - Complete Blood Count
   CBC?: {
@@ -145,6 +146,11 @@ const labTestSchema = new Schema<ILabTest>(
       type: String,
       enum: ['blood', 'urine', 'stool'],
       required: true
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'completed', 'in', 'out'],
+      default: 'pending'
     },
 
     // CBC
