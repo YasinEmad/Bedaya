@@ -126,6 +126,103 @@ export interface IAdultPatient extends IBasePatient {
   };
 }
 
+const smokingSchema = new Schema({
+  status: {
+    type: String,
+    enum: ['yes', 'no', 'former']
+  },
+  rate: String,
+  type: String,
+  durationYears: Number,
+  cessationYears: Number
+}, { _id: false });
+
+const menstruationSchema = new Schema({
+  regular: Boolean,
+  gravidaNumber: Number,
+  abortionNumber: Number
+}, { _id: false });
+
+const contraceptionSchema = new Schema({
+  using: Boolean,
+  method: [String],
+  other: String
+}, { _id: false });
+
+const pastHistorySchema = new Schema({
+  diabetes: Boolean,
+  hypertension: Boolean,
+  HCV: Boolean,
+  RHD: Boolean,
+  others: String
+}, { _id: false });
+
+const allergiesSchema = new Schema({
+  hasAllergy: Boolean,
+  details: String
+}, { _id: false });
+
+const bloodTransfusionSchema = new Schema({
+  received: Boolean,
+  duration: String
+}, { _id: false });
+
+const surgerySchema = new Schema({
+  ICU: Boolean,
+  operation: Boolean
+}, { _id: false });
+
+const chronicMedicationsSchema = new Schema({
+  antiHTN: Boolean,
+  oralHypoglycemic: Boolean,
+  antiepileptic: Boolean,
+  antidiuretic: Boolean,
+  others: String
+}, { _id: false });
+
+const familyHistorySchema = new Schema({
+  similar: Boolean,
+  hypertension: Boolean,
+  diabetes: Boolean,
+  others: String
+}, { _id: false });
+
+const vitalsSchema = new Schema({
+  BP: String,
+  HR: Number,
+  RBS: Number,
+  temperature: Number,
+  SpO2: Number
+}, { _id: false });
+
+const physicalExamSchema = new Schema({
+  cyanosis: {
+    peripheral: Boolean,
+    central: Boolean
+  },
+  jaundice: Boolean,
+  pallor: Boolean
+}, { _id: false });
+
+const anthropometrySchema = new Schema({
+  weight: Number,
+  height: Number,
+  BMI: Number
+}, { _id: false });
+
+const referralsSchema = new Schema({
+  internalMedicine: Boolean,
+  cardiology: Boolean,
+  surgery: Boolean,
+  ophthalmology: Boolean,
+  obstetricGynecology: Boolean,
+  ENT: Boolean,
+  dermatology: Boolean,
+  orthopedics: Boolean,
+  dental: Boolean,
+  goHome: Boolean
+}, { _id: false });
+
 const adultPatientSchema = new Schema<IAdultPatient>(
   {
     ...patientBaseSchema,
@@ -158,95 +255,24 @@ const adultPatientSchema = new Schema<IAdultPatient>(
     ifMarriedChildren: Number,
     ageOfYoungest: Number,
     educationLevel: String,
-    smoking: {
-      status: {
-        type: String,
-        enum: ['yes', 'no', 'former']
-      },
-      rate: String,
-      type: String,
-      durationYears: Number,
-      cessationYears: Number
-    },
-    menstruation: {
-      regular: Boolean,
-      gravidaNumber: Number,
-      abortionNumber: Number
-    },
-    contraception: {
-      using: Boolean,
-      method: [String],
-      other: String
-    },
+    smoking: smokingSchema,
+    menstruation: menstruationSchema,
+    contraception: contraceptionSchema,
     complaints: [String],
-    pastHistory: {
-      diabetes: Boolean,
-      hypertension: Boolean,
-      HCV: Boolean,
-      RHD: Boolean,
-      others: String
-    },
-    allergies: {
-      hasAllergy: Boolean,
-      details: String
-    },
-    bloodTransfusion: {
-      received: Boolean,
-      duration: String
-    },
-    surgery: {
-      ICU: Boolean,
-      operation: Boolean
-    },
-    chronicMedications: {
-      antiHTN: Boolean,
-      oralHypoglycemic: Boolean,
-      antiepileptic: Boolean,
-      antidiuretic: Boolean,
-      others: String
-    },
-    familyHistory: {
-      similar: Boolean,
-      hypertension: Boolean,
-      diabetes: Boolean,
-      others: String
-    },
-    vitals: {
-      BP: String,
-      HR: Number,
-      RBS: Number,
-      temperature: Number,
-      SpO2: Number
-    },
-    physicalExam: {
-      cyanosis: {
-        peripheral: Boolean,
-        central: Boolean
-      },
-      jaundice: Boolean,
-      pallor: Boolean
-    },
-    anthropometry: {
-      weight: Number,
-      height: Number,
-      BMI: Number
-    },
+    pastHistory: pastHistorySchema,
+    allergies: allergiesSchema,
+    bloodTransfusion: bloodTransfusionSchema,
+    surgery: surgerySchema,
+    chronicMedications: chronicMedicationsSchema,
+    familyHistory: familyHistorySchema,
+    vitals: vitalsSchema,
+    physicalExam: physicalExamSchema,
+    anthropometry: anthropometrySchema,
     diabetesScreening: {
       type: String,
       enum: ['known', 'unknown', 'none']
     },
-    referrals: {
-      internalMedicine: Boolean,
-      cardiology: Boolean,
-      surgery: Boolean,
-      ophthalmology: Boolean,
-      obstetricGynecology: Boolean,
-      ENT: Boolean,
-      dermatology: Boolean,
-      orthopedics: Boolean,
-      dental: Boolean,
-      goHome: Boolean
-    }
+    referrals: referralsSchema
   },
   { timestamps: true }
 );

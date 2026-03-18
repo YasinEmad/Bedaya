@@ -10,12 +10,28 @@ export interface LabTest {
   status: 'pending' | 'completed' | 'in' | 'out';
   CBC?: {
     WBCs?: number;
+    lymphocytes?: number;
+    lymphocytesPercentage?: number;
+    midRange?: number;
+    midRangePercentage?: number;
+    granulocytes?: number;
+    granulocytesPercentage?: number;
     RBCs?: number;
     hemoglobin?: number;
     hematocrit?: number;
+    MCV?: number;
+    MCH?: number;
+    MCHC?: number;
+    RDW_CV?: number;
+    RDW_SD?: number;
     platelets?: number;
+    MPV?: number;
+    PDW?: number;
+    PCT?: number;
+    ESR?: number;
+    PLCC?: number;
+    PLCR?: number;
     neutrophils?: number;
-    lymphocytes?: number;
     eosinophils?: number;
     monocytes?: number;
     basophils?: number;
@@ -142,6 +158,7 @@ export interface CreateLabTestData {
   stoolAnalysis?: LabTest['stoolAnalysis'];
   crUrea?: LabTest['crUrea'];
   notes?: string;
+  technician?: string;
 }
 
 interface LabsState {

@@ -121,6 +121,8 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
     const [rheumatoidFactor, setRheumatoidFactor] = useState("");
     const [asot, setAsot] = useState("");
     const [crp, setCrp] = useState("");
+    const [notes, setNotes] = useState("");
+    const [technician, setTechnician] = useState("");
 
     const handleSubmitBlood = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -136,10 +138,27 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
             testType: 'blood' as const,
             CBC: {
                 WBCs: wbcs ? parseFloat(wbcs) : undefined,
+                lymphocytes: lymphocytesHash ? parseFloat(lymphocytesHash) : undefined,
+                lymphocytesPercentage: lymphocytesPercentage ? parseFloat(lymphocytesPercentage) : undefined,
+                midRange: midRangeHash ? parseFloat(midRangeHash) : undefined,
+                midRangePercentage: midRangePercentage ? parseFloat(midRangePercentage) : undefined,
+                granulocytes: granulocytesHash ? parseFloat(granulocytesHash) : undefined,
+                granulocytesPercentage: granulocytesPercentage ? parseFloat(granulocytesPercentage) : undefined,
                 RBCs: rbcs ? parseFloat(rbcs) : undefined,
                 hemoglobin: hemoglobin ? parseFloat(hemoglobin) : undefined,
                 hematocrit: hematocrit ? parseFloat(hematocrit) : undefined,
+                MCV: mcv ? parseFloat(mcv) : undefined,
+                MCH: mch ? parseFloat(mch) : undefined,
+                MCHC: mchc ? parseFloat(mchc) : undefined,
+                RDW_CV: rdwCv ? parseFloat(rdwCv) : undefined,
+                RDW_SD: rdwSd ? parseFloat(rdwSd) : undefined,
                 platelets: platelets ? parseFloat(platelets) : undefined,
+                MPV: mpv ? parseFloat(mpv) : undefined,
+                PDW: pdw ? parseFloat(pdw) : undefined,
+                PCT: pct ? parseFloat(pct) : undefined,
+                ESR: esr ? parseFloat(esr) : undefined,
+                PLCC: pLcc ? parseFloat(pLcc) : undefined,
+                PLCR: pLcr ? parseFloat(pLcr) : undefined,
             },
             liverFunction: {
                 ALT: altGpt ? parseFloat(altGpt) : undefined,
@@ -190,6 +209,8 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                 ASOT: asot ? parseFloat(asot) : undefined,
                 CRP: crp ? parseFloat(crp) : undefined,
             },
+            notes: notes || undefined,
+            technician: technician || undefined,
         };
 
         try {
@@ -217,10 +238,10 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
         setWbcs("");
         setEsr("");
         setLymphocytesHash("");
-        setMidRangeHash("");
-        setGranulocytesHash("");
         setLymphocytesPercentage("");
+        setMidRangeHash("");
         setMidRangePercentage("");
+        setGranulocytesHash("");
         setGranulocytesPercentage("");
         setRbcs("");
         setHemoglobin("");
@@ -269,6 +290,8 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
         setRheumatoidFactor("");
         setAsot("");
         setCrp("");
+        setNotes("");
+        setTechnician("");
         setIsEditing(false);
         setEditingTestId(null);
     };
@@ -320,10 +343,27 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
 
         // CBC fields
         setWbcs(test.CBC?.WBCs?.toString() || "");
+        setLymphocytesHash(test.CBC?.lymphocytes?.toString() || "");
+        setLymphocytesPercentage(test.CBC?.lymphocytesPercentage?.toString() || "");
+        setMidRangeHash(test.CBC?.midRange?.toString() || "");
+        setMidRangePercentage(test.CBC?.midRangePercentage?.toString() || "");
+        setGranulocytesHash(test.CBC?.granulocytes?.toString() || "");
+        setGranulocytesPercentage(test.CBC?.granulocytesPercentage?.toString() || "");
         setRbcs(test.CBC?.RBCs?.toString() || "");
         setHemoglobin(test.CBC?.hemoglobin?.toString() || "");
         setHematocrit(test.CBC?.hematocrit?.toString() || "");
+        setMcv(test.CBC?.MCV?.toString() || "");
+        setMch(test.CBC?.MCH?.toString() || "");
+        setMchc(test.CBC?.MCHC?.toString() || "");
+        setRdwCv(test.CBC?.RDW_CV?.toString() || "");
+        setRdwSd(test.CBC?.RDW_SD?.toString() || "");
         setPlatelets(test.CBC?.platelets?.toString() || "");
+        setMpv(test.CBC?.MPV?.toString() || "");
+        setPdw(test.CBC?.PDW?.toString() || "");
+        setPct(test.CBC?.PCT?.toString() || "");
+        setEsr(test.CBC?.ESR?.toString() || "");
+        setPLcc(test.CBC?.PLCC?.toString() || "");
+        setPLcr(test.CBC?.PLCR?.toString() || "");
 
         // Liver Function fields
         setAltGpt(test.liverFunction?.ALT?.toString() || "");
@@ -373,6 +413,10 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
         setRheumatoidFactor(test.inflammatory?.rheumatoidFactor?.toString() || "");
         setAsot(test.inflammatory?.ASOT?.toString() || "");
         setCrp(test.inflammatory?.CRP?.toString() || "");
+
+        // Additional fields
+        setNotes(test.notes || "");
+        setTechnician(test.technician || "");
 
         // Set editing state
         setIsEditing(true);
@@ -606,7 +650,13 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
 
 
 
-                                    <Input value={lymphocytesPercentage} onChange={(e) => setLymphocytesPercentage(e.target.value)} className="flex-1" />
+                                    <Input
+                                        type="number"
+                                        value={lymphocytesPercentage}
+                                        onChange={(e) => setLymphocytesPercentage(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter percentage"
+                                    />
 
 
 
@@ -622,7 +672,13 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
 
 
 
-                                    <Input value={midRangePercentage} onChange={(e) => setMidRangePercentage(e.target.value)} className="flex-1" />
+                                    <Input
+                                        type="number"
+                                        value={midRangePercentage}
+                                        onChange={(e) => setMidRangePercentage(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter percentage"
+                                    />
 
 
 
@@ -638,7 +694,13 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
 
 
 
-                                    <Input value={granulocytesPercentage} onChange={(e) => setGranulocytesPercentage(e.target.value)} className="flex-1" />
+                                    <Input
+                                        type="number"
+                                        value={granulocytesPercentage}
+                                        onChange={(e) => setGranulocytesPercentage(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter percentage"
+                                    />
 
 
 
@@ -882,7 +944,13 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
 
 
 
-                                    <Input value={esr} onChange={(e) => setEsr(e.target.value)} className="flex-1" />
+                                    <Input
+                                        type="number"
+                                        value={esr}
+                                        onChange={(e) => setEsr(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter value"
+                                    />
 
 
 
@@ -1060,72 +1128,33 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">Alfa fetoprotein</Label>
-                                    <RadioGroup
+                                    <Input
+                                        type="number"
                                         value={alfaFetoprotein}
-                                        onValueChange={setAlfaFetoprotein}
+                                        onChange={(e) => setAlfaFetoprotein(e.target.value)}
                                         className="flex-1"
-                                    >
-                                        <div className="flex flex-row space-x-4">
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="" id="alfaFetoprotein-status-default" />
-                                                <Label htmlFor="alfaFetoprotein-status-default">Select Value</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="Positive" id="alfaFetoprotein-status-positive" />
-                                                <Label htmlFor="alfaFetoprotein-status-positive">Positive</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="Negative" id="alfaFetoprotein-status-negative" />
-                                                <Label htmlFor="alfaFetoprotein-status-negative">Negative</Label>
-                                            </div>
-                                        </div>
-                                    </RadioGroup>
+                                        placeholder="Enter value"
+                                    />
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">PSA</Label>
-                                    <RadioGroup
+                                    <Input
+                                        type="number"
                                         value={psa}
-                                        onValueChange={setPsa}
+                                        onChange={(e) => setPsa(e.target.value)}
                                         className="flex-1"
-                                    >
-                                        <div className="flex flex-row space-x-4">
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="" id="psa-status-default" />
-                                                <Label htmlFor="psa-status-default">Select Value</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="Positive" id="psa-status-positive" />
-                                                <Label htmlFor="psa-status-positive">Positive</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="Negative" id="psa-status-negative" />
-                                                <Label htmlFor="psa-status-negative">Negative</Label>
-                                            </div>
-                                        </div>
-                                    </RadioGroup>
+                                        placeholder="Enter value"
+                                    />
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">B HCG</Label>
-                                    <RadioGroup
+                                    <Input
+                                        type="number"
                                         value={bHcg}
-                                        onValueChange={setBHcg}
+                                        onChange={(e) => setBHcg(e.target.value)}
                                         className="flex-1"
-                                    >
-                                        <div className="flex flex-row space-x-4">
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="" id="bHcg-status-default" />
-                                                <Label htmlFor="bHcg-status-default">Select Value</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="Positive" id="bHcg-status-positive" />
-                                                <Label htmlFor="bHcg-status-positive">Positive</Label>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="Negative" id="bHcg-status-negative" />
-                                                <Label htmlFor="bHcg-status-negative">Negative</Label>
-                                            </div>
-                                        </div>
-                                    </RadioGroup>
+                                        placeholder="Enter value"
+                                    />
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">Anti D</Label>
@@ -1152,34 +1181,54 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">Rheumatoid factor</Label>
-                                    <Select value={rheumatoidFactor} onValueChange={setRheumatoidFactor}>
-                                        <SelectTrigger className="flex-1">
-                                            <SelectValue placeholder="Select status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {absentPresentOptions.map((option) => (
-                                                <SelectItem key={option} value={option}>{option}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Input
+                                        type="number"
+                                        value={rheumatoidFactor}
+                                        onChange={(e) => setRheumatoidFactor(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter value"
+                                    />
                                 </div>
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">ASOT</Label>
-                                    <Select value={asot} onValueChange={setAsot}>
-                                        <SelectTrigger className="flex-1">
-                                            <SelectValue placeholder="Select status" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {absentPresentOptions.map((option) => (
-                                                <SelectItem key={option} value={option}>{option}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+                                    <Input
+                                        type="number"
+                                        value={asot}
+                                        onChange={(e) => setAsot(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter value"
+                                    />
                                 </div>
 
                                 <div className="flex items-center gap-4">
                                     <Label className="text-left w-40">CRP</Label>
-                                    <Input value={crp} onChange={(e) => setCrp(e.target.value)} className="flex-1" />
+                                    <Input
+                                        type="number"
+                                        value={crp}
+                                        onChange={(e) => setCrp(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter value"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <Label className="text-left w-40">Notes</Label>
+                                    <Input
+                                        value={notes}
+                                        onChange={(e) => setNotes(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter notes"
+                                    />
+                                </div>
+
+                                <div className="flex items-center gap-4">
+                                    <Label className="text-left w-40">Technician</Label>
+                                    <Input
+                                        value={technician}
+                                        onChange={(e) => setTechnician(e.target.value)}
+                                        className="flex-1"
+                                        placeholder="Enter technician name"
+                                    />
                                 </div>
 
                                 <Separator className="my-4" /> {/* <--- NEW SEPARATOR */}

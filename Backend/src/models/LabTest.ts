@@ -11,8 +11,11 @@ export interface ILabTest extends Document {
   CBC?: {
     WBCs?: number;
     lymphocytes?: number;
+    lymphocytesPercentage?: number;
     midRange?: number;
+    midRangePercentage?: number;
     granulocytes?: number;
+    granulocytesPercentage?: number;
     RBCs?: number;
     hemoglobin?: number;
     hematocrit?: number;
@@ -25,6 +28,9 @@ export interface ILabTest extends Document {
     MPV?: number;
     PDW?: number;
     PCT?: number;
+    ESR?: number;
+    PLCC?: number;
+    PLCR?: number;
   };
 
   // Liver Function Tests
@@ -124,6 +130,7 @@ export interface ILabTest extends Document {
   };
 
   notes?: string;
+  technician?: string;
 }
 
 const labTestSchema = new Schema<ILabTest>(
@@ -157,8 +164,11 @@ const labTestSchema = new Schema<ILabTest>(
     CBC: {
       WBCs: Number,
       lymphocytes: Number,
+      lymphocytesPercentage: Number,
       midRange: Number,
+      midRangePercentage: Number,
       granulocytes: Number,
+      granulocytesPercentage: Number,
       RBCs: Number,
       hemoglobin: Number,
       hematocrit: Number,
@@ -170,7 +180,10 @@ const labTestSchema = new Schema<ILabTest>(
       RDW_SD: Number,
       MPV: Number,
       PDW: Number,
-      PCT: Number
+      PCT: Number,
+      ESR: Number,
+      PLCC: Number,
+      PLCR: Number
     },
 
     // Liver Function
@@ -269,7 +282,8 @@ const labTestSchema = new Schema<ILabTest>(
       HPylori: String
     },
 
-    notes: String
+    notes: String,
+    technician: String
   },
   { timestamps: true }
 );

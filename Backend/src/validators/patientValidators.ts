@@ -97,16 +97,76 @@ export const createLabTestSchema = Joi.object({
   status: Joi.string().valid('pending', 'completed', 'in', 'out').default('pending').optional(),
   CBC: Joi.object({
     WBCs: Joi.number().optional(),
+    lymphocytes: Joi.number().optional(),
+    lymphocytesPercentage: Joi.number().optional(),
+    midRange: Joi.number().optional(),
+    midRangePercentage: Joi.number().optional(),
+    granulocytes: Joi.number().optional(),
+    granulocytesPercentage: Joi.number().optional(),
     RBCs: Joi.number().optional(),
     hemoglobin: Joi.number().optional(),
     hematocrit: Joi.number().optional(),
-    platelets: Joi.number().optional()
+    MCV: Joi.number().optional(),
+    MCH: Joi.number().optional(),
+    MCHC: Joi.number().optional(),
+    platelets: Joi.number().optional(),
+    RDW_CV: Joi.number().optional(),
+    RDW_SD: Joi.number().optional(),
+    MPV: Joi.number().optional(),
+    PDW: Joi.number().optional(),
+    PCT: Joi.number().optional(),
+    ESR: Joi.number().optional(),
+    PLCC: Joi.number().optional(),
+    PLCR: Joi.number().optional()
+  }).optional(),
+  liverFunction: Joi.object({
+    ALT: Joi.number().optional(),
+    AST: Joi.number().optional(),
+    alkalinePhosphatase: Joi.number().optional(),
+    albumin: Joi.number().optional(),
+    totalBilirubin: Joi.number().optional(),
+    directBilirubin: Joi.number().optional()
+  }).optional(),
+  coagulation: Joi.object({
+    PTInr: Joi.number().optional(),
+    PTTime: Joi.number().optional(),
+    PTPercentage: Joi.number().optional(),
+    PTT: Joi.number().optional()
+  }).optional(),
+  kidneyFunction: Joi.object({
+    creatinine: Joi.number().optional(),
+    urea: Joi.number().optional(),
+    uricAcid: Joi.number().optional()
+  }).optional(),
+  lipidProfile: Joi.object({
+    cholesterol: Joi.number().optional(),
+    triglycerides: Joi.number().optional(),
+    HDL: Joi.number().optional(),
+    LDL: Joi.number().optional()
+  }).optional(),
+  electrolytes: Joi.object({
+    potassium: Joi.number().optional(),
+    calcium: Joi.number().optional(),
+    sodium: Joi.number().optional()
   }).optional(),
   glucose: Joi.object({
     random: Joi.number().optional(),
     fasting: Joi.number().optional(),
     postPrandial: Joi.number().optional(),
     HbA1C: Joi.number().optional()
+  }).optional(),
+  serology: Joi.object({
+    HBV: Joi.string().optional(),
+    HCV: Joi.string().optional(),
+    alphaFetoprotein: Joi.number().optional(),
+    PSA: Joi.number().optional(),
+    betaHCG: Joi.number().optional(),
+    antiD: Joi.string().optional()
+  }).optional(),
+  inflammatory: Joi.object({
+    rheumatoidFactor: Joi.number().optional(),
+    ASOT: Joi.number().optional(),
+    CRP: Joi.number().optional()
   }).optional(),
   notes: Joi.string().optional()
 }).unknown(true);
