@@ -48,6 +48,21 @@ export interface LabTest {
     WBC?: number;
     RBC?: number;
   };
+  urine?: {
+    color?: string;
+    odour?: string;
+    consistency?: string;
+    mucus?: string;
+    blood?: string;
+    WBCs?: string;
+    RBCs?: string;
+    protein?: string;
+    glucose?: string;
+    ketones?: string;
+    bilirubin?: string;
+    specificGravity?: string;
+    pH?: string;
+  };
   stoolAnalysis?: {
     color?: string;
     consistency?: string;
@@ -156,6 +171,7 @@ export interface CreateLabTestData {
   serology?: LabTest['serology'];
   inflammatory?: LabTest['inflammatory'];
   urineAnalysis?: LabTest['urineAnalysis'];
+  urine?: LabTest['urine'];
   stoolAnalysis?: LabTest['stoolAnalysis'];
   crUrea?: LabTest['crUrea'];
   notes?: string;
@@ -166,6 +182,7 @@ interface LabsState {
   labTests: LabTest[];
   recentTests: LabTest[];
   bloodTests: LabTest[];
+  urineTests: LabTest[];
   selectedTest: LabTest | null;
   statistics: LabStatistics | null;
   loading: boolean;
@@ -205,6 +222,15 @@ export const fetchBloodLabTests = createAsyncThunk(
   async () => {
     const response = await fetch('/api/labs/recent?type=blood');
     if (!response.ok) throw new Error('Failed to fetch blood lab tests');
+    return response.json();
+  }
+);
+
+export const fetchUrineLabTests = createAsyncThunk(
+  'labs/fetchUrineLabTests',
+  async () => {
+    const response = await fetch('/api/labs/recent?type=urine');
+    if (!response.ok) throw new Error('Failed to fetch urine lab tests');
     return response.json();
   }
 );
@@ -259,6 +285,7 @@ const initialState: LabsState = {
   labTests: [],
   recentTests: [],
   bloodTests: [],
+  urineTests: [],
   selectedTest: null,
   statistics: null,
   loading: false,
@@ -283,6 +310,7 @@ const labsSlice = createSlice({
       state.labTests = [];
       state.recentTests = [];
       state.bloodTests = [];
+      state.urineTests = [];
       state.selectedTest = null;
       state.statistics = null;
       state.filters = {};
@@ -357,6 +385,20 @@ const labsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch lab statistics';
       })
 
+      // Fetch Urine Lab Tests
+      .addCase(fetchUrineLabTests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUrineLabTests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.urineTests = action.payload.data;
+      })
+      .addCase(fetchUrineLabTests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch urine lab tests';
+      })
+
       // Create Lab Test
       .addCase(createLabTest.pending, (state) => {
         state.loading = true;
@@ -368,6 +410,12 @@ const labsSlice = createSlice({
         state.recentTests.unshift(action.payload.data);
         // Keep only recent 50 tests
         state.recentTests = state.recentTests.slice(0, 50);
+        if (action.payload.data.testType === 'blood') {
+          state.bloodTests.unshift(action.payload.data);
+        }
+        if (action.payload.data.testType === 'urine') {
+          state.urineTests.unshift(action.payload.data);
+        }
       })
       .addCase(createLabTest.rejected, (state, action) => {
         state.loading = false;
@@ -392,6 +440,10 @@ const labsSlice = createSlice({
         const bloodIndex = state.bloodTests.findIndex(t => t._id === action.payload.data._id);
         if (bloodIndex !== -1) {
           state.bloodTests[bloodIndex] = action.payload.data;
+        }
+        const urineIndex = state.urineTests.findIndex(t => t._id === action.payload.data._id);
+        if (urineIndex !== -1) {
+          state.urineTests[urineIndex] = action.payload.data;
         }
         if (state.selectedTest && state.selectedTest._id === action.payload.data._id) {
           state.selectedTest = action.payload.data;

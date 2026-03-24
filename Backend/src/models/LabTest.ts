@@ -254,15 +254,18 @@ const labTestSchema = new Schema<ILabTest>(
     // Urine
     urine: {
       consistency: String,
+      odour: String,
       blood: String,
       mucus: String,
       color: String,
-      WBCs: Number,
-      RBCs: Number,
+      WBCs: String,
+      RBCs: String,
       protein: String,
       glucose: String,
       ketones: String,
-      bilirubin: String
+      bilirubin: String,
+      specificGravity: String,
+      pH: String
     },
 
     // Stool
