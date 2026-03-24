@@ -122,10 +122,22 @@ export interface ILabTest extends Document {
     odour?: string;
     fasciola?: string;
     schMansoni?: string;
+    hNana?: string;
+    tinea?: string;
+    ascaris?: string;
+    tTrichuria?: string;
+    hookWorm?: string;
+    entrobious?: string;
+    eColi?: string;
+    eHistolitica?: string;
+    giardiaMicro?: string;
+    strongyloidesLarvae?: string;
     giardiaTrophozoite?: string;
     eHistoliticaTrophozoite?: string;
     blastocystHominis?: string;
     candidaAlbicans?: string;
+    WBCs?: string;
+    RBCs?: string;
     HPylori?: string;
   };
 
@@ -278,10 +290,22 @@ const labTestSchema = new Schema<ILabTest>(
       odour: String,
       fasciola: String,
       schMansoni: String,
+      hNana: String,
+      tinea: String,
+      ascaris: String,
+      tTrichuria: String,
+      hookWorm: String,
+      entrobious: String,
+      eColi: String,
+      eHistolitica: String,
+      giardiaMicro: String,
+      strongyloidesLarvae: String,
       giardiaTrophozoite: String,
       eHistoliticaTrophozoite: String,
       blastocystHominis: String,
       candidaAlbicans: String,
+      WBCs: String,
+      RBCs: String,
       HPylori: String
     },
 

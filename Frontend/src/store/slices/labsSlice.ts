@@ -71,6 +71,33 @@ export interface LabTest {
     parasites?: string;
     occultBlood?: boolean;
   };
+  stool?: {
+    consistency?: string;
+    blood?: string;
+    mucus?: string;
+    color?: string;
+    worm?: string;
+    odour?: string;
+    fasciola?: string;
+    schMansoni?: string;
+    hNana?: string;
+    tinea?: string;
+    ascaris?: string;
+    tTrichuria?: string;
+    hookWorm?: string;
+    entrobious?: string;
+    eColi?: string;
+    eHistolitica?: string;
+    giardiaMicro?: string;
+    strongyloidesLarvae?: string;
+    giardiaTrophozoite?: string;
+    eHistoliticaTrophozoite?: string;
+    blastocystHominis?: string;
+    candidaAlbicans?: string;
+    WBCs?: string;
+    RBCs?: string;
+    HPylori?: string;
+  };
   crUrea?: {
     creatinine?: number;
     urea?: number;
@@ -173,6 +200,7 @@ export interface CreateLabTestData {
   urineAnalysis?: LabTest['urineAnalysis'];
   urine?: LabTest['urine'];
   stoolAnalysis?: LabTest['stoolAnalysis'];
+  stool?: LabTest['stool'];
   crUrea?: LabTest['crUrea'];
   notes?: string;
   technician?: string;
@@ -183,6 +211,7 @@ interface LabsState {
   recentTests: LabTest[];
   bloodTests: LabTest[];
   urineTests: LabTest[];
+  stoolTests: LabTest[];
   selectedTest: LabTest | null;
   statistics: LabStatistics | null;
   loading: boolean;
@@ -231,6 +260,15 @@ export const fetchUrineLabTests = createAsyncThunk(
   async () => {
     const response = await fetch('/api/labs/recent?type=urine');
     if (!response.ok) throw new Error('Failed to fetch urine lab tests');
+    return response.json();
+  }
+);
+
+export const fetchStoolLabTests = createAsyncThunk(
+  'labs/fetchStoolLabTests',
+  async () => {
+    const response = await fetch('/api/labs/recent?type=stool');
+    if (!response.ok) throw new Error('Failed to fetch stool lab tests');
     return response.json();
   }
 );
@@ -286,6 +324,7 @@ const initialState: LabsState = {
   recentTests: [],
   bloodTests: [],
   urineTests: [],
+  stoolTests: [],
   selectedTest: null,
   statistics: null,
   loading: false,
@@ -311,6 +350,7 @@ const labsSlice = createSlice({
       state.recentTests = [];
       state.bloodTests = [];
       state.urineTests = [];
+      state.stoolTests = [];
       state.selectedTest = null;
       state.statistics = null;
       state.filters = {};
@@ -399,6 +439,20 @@ const labsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch urine lab tests';
       })
 
+      // Fetch Stool Lab Tests
+      .addCase(fetchStoolLabTests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchStoolLabTests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.stoolTests = action.payload.data;
+      })
+      .addCase(fetchStoolLabTests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch stool lab tests';
+      })
+
       // Create Lab Test
       .addCase(createLabTest.pending, (state) => {
         state.loading = true;
@@ -415,6 +469,9 @@ const labsSlice = createSlice({
         }
         if (action.payload.data.testType === 'urine') {
           state.urineTests.unshift(action.payload.data);
+        }
+        if (action.payload.data.testType === 'stool') {
+          state.stoolTests.unshift(action.payload.data);
         }
       })
       .addCase(createLabTest.rejected, (state, action) => {
@@ -444,6 +501,10 @@ const labsSlice = createSlice({
         const urineIndex = state.urineTests.findIndex(t => t._id === action.payload.data._id);
         if (urineIndex !== -1) {
           state.urineTests[urineIndex] = action.payload.data;
+        }
+        const stoolIndex = state.stoolTests.findIndex(t => t._id === action.payload.data._id);
+        if (stoolIndex !== -1) {
+          state.stoolTests[stoolIndex] = action.payload.data;
         }
         if (state.selectedTest && state.selectedTest._id === action.payload.data._id) {
           state.selectedTest = action.payload.data;
