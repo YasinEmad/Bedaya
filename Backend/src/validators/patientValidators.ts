@@ -91,8 +91,8 @@ export const createLabTestSchema = Joi.object({
   }),
   patientName: Joi.string().required(),
   testDate: Joi.date().default(() => new Date()),
-  testType: Joi.string().valid('blood', 'urine', 'stool').required().messages({
-    'any.only': 'Test type must be blood, urine, or stool'
+  testType: Joi.string().valid('blood', 'urine', 'stool', 'cr_urea').required().messages({
+    'any.only': 'Test type must be blood, urine, stool, or cr_urea'
   }),
   status: Joi.string().valid('pending', 'completed', 'in', 'out').default('pending').optional(),
   CBC: Joi.object({
@@ -167,6 +167,11 @@ export const createLabTestSchema = Joi.object({
     rheumatoidFactor: Joi.number().optional(),
     ASOT: Joi.number().optional(),
     CRP: Joi.number().optional()
+  }).optional(),
+  crUrea: Joi.object({
+    creatinine: Joi.number().optional(),
+    urea: Joi.number().optional(),
+    eGFR: Joi.number().optional()
   }).optional(),
   notes: Joi.string().optional()
 }).unknown(true);

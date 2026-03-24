@@ -20,7 +20,7 @@ import { Plus } from "lucide-react";
 import { UrineLabsModule } from "./UrineLabsModule";
 import { StoolLabsModule } from "./StoolLabsModule";
 import { BloodLabsModule } from "./BloodLabsModule";
-import { AddCrUreaPatientDialog } from "./AddCrUreaPatientDialog";
+import { CrUreaLabsModule } from "./CrUreaLabsModule";
 
 interface LabsModuleProps {
     activeLabSection?: string; // e.g., "labs", "labs-blood", "labs-urine"
@@ -38,6 +38,9 @@ export function LabsModule({ activeLabSection }: LabsModuleProps) {
     }
     if (activeLabSection === 'labs-stool') {
         return <StoolLabsModule activeLabSection={activeLabSection} />;
+    }
+    if (activeLabSection === 'labs-cr_urea') {
+        return <CrUreaLabsModule activeLabSection={activeLabSection} />;
     }
     // Note: Cr/Urea logic is intertwined with overall or handled separately? 
     // The previous code had specific logic for cr_urea in the generic view.

@@ -4,7 +4,7 @@ export interface ILabTest extends Document {
   patientId: string;
   patientName: string;
   testDate: Date;
-  testType: 'blood' | 'urine' | 'stool';
+  testType: 'blood' | 'urine' | 'stool' | 'cr_urea';
   status: 'pending' | 'completed' | 'in' | 'out';
 
   // CBC - Complete Blood Count
@@ -141,6 +141,13 @@ export interface ILabTest extends Document {
     HPylori?: string;
   };
 
+  // Cr/Urea Tests
+  crUrea?: {
+    creatinine?: number;
+    urea?: number;
+    eGFR?: number;
+  };
+
   notes?: string;
   technician?: string;
 }
@@ -163,7 +170,7 @@ const labTestSchema = new Schema<ILabTest>(
     },
     testType: {
       type: String,
-      enum: ['blood', 'urine', 'stool'],
+      enum: ['blood', 'urine', 'stool', 'cr_urea'],
       required: true
     },
     status: {
@@ -307,6 +314,13 @@ const labTestSchema = new Schema<ILabTest>(
       WBCs: String,
       RBCs: String,
       HPylori: String
+    },
+
+    // Cr/Urea
+    crUrea: {
+      creatinine: Number,
+      urea: Number,
+      eGFR: Number
     },
 
     notes: String,

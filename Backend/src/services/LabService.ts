@@ -158,11 +158,12 @@ export class LabService {
         if (endDate) query.testDate.$lte = endDate;
       }
 
-      const [totalTests, bloodTests, urineTests, stoolTests] = await Promise.all([
+      const [totalTests, bloodTests, urineTests, stoolTests, crUreaTests] = await Promise.all([
         LabTest.countDocuments(query),
         LabTest.countDocuments({ ...query, testType: 'blood' }),
         LabTest.countDocuments({ ...query, testType: 'urine' }),
-        LabTest.countDocuments({ ...query, testType: 'stool' })
+        LabTest.countDocuments({ ...query, testType: 'stool' }),
+        LabTest.countDocuments({ ...query, testType: 'cr_urea' })
       ]);
 
       return {
@@ -170,7 +171,8 @@ export class LabService {
         breakdown: {
           blood: bloodTests,
           urine: urineTests,
-          stool: stoolTests
+          stool: stoolTests,
+          cr_urea: crUreaTests
         }
       };
     } catch (error: any) {

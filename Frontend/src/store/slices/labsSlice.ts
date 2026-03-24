@@ -212,6 +212,7 @@ interface LabsState {
   bloodTests: LabTest[];
   urineTests: LabTest[];
   stoolTests: LabTest[];
+  crUreaTests: LabTest[];
   selectedTest: LabTest | null;
   statistics: LabStatistics | null;
   loading: boolean;
@@ -282,6 +283,15 @@ export const fetchLabStatistics = createAsyncThunk(
   }
 );
 
+export const fetchCrUreaLabTests = createAsyncThunk(
+  'labs/fetchCrUreaLabTests',
+  async () => {
+    const response = await fetch('/api/labs/recent?type=cr_urea');
+    if (!response.ok) throw new Error('Failed to fetch cr/urea lab tests');
+    return response.json();
+  }
+);
+
 export const createLabTest = createAsyncThunk(
   'labs/createLabTest',
   async (testData: CreateLabTestData) => {
@@ -325,6 +335,7 @@ const initialState: LabsState = {
   bloodTests: [],
   urineTests: [],
   stoolTests: [],
+  crUreaTests: [],
   selectedTest: null,
   statistics: null,
   loading: false,
@@ -351,6 +362,7 @@ const labsSlice = createSlice({
       state.bloodTests = [];
       state.urineTests = [];
       state.stoolTests = [];
+      state.crUreaTests = [];
       state.selectedTest = null;
       state.statistics = null;
       state.filters = {};
@@ -453,6 +465,20 @@ const labsSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch stool lab tests';
       })
 
+      // Fetch Cr/Urea Lab Tests
+      .addCase(fetchCrUreaLabTests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCrUreaLabTests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.crUreaTests = action.payload.data;
+      })
+      .addCase(fetchCrUreaLabTests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch cr/urea lab tests';
+      })
+
       // Create Lab Test
       .addCase(createLabTest.pending, (state) => {
         state.loading = true;
@@ -472,6 +498,9 @@ const labsSlice = createSlice({
         }
         if (action.payload.data.testType === 'stool') {
           state.stoolTests.unshift(action.payload.data);
+        }
+        if (action.payload.data.testType === 'cr_urea') {
+          state.crUreaTests.unshift(action.payload.data);
         }
       })
       .addCase(createLabTest.rejected, (state, action) => {
@@ -505,6 +534,10 @@ const labsSlice = createSlice({
         const stoolIndex = state.stoolTests.findIndex(t => t._id === action.payload.data._id);
         if (stoolIndex !== -1) {
           state.stoolTests[stoolIndex] = action.payload.data;
+        }
+        const crUreaIndex = state.crUreaTests.findIndex(t => t._id === action.payload.data._id);
+        if (crUreaIndex !== -1) {
+          state.crUreaTests[crUreaIndex] = action.payload.data;
         }
         if (state.selectedTest && state.selectedTest._id === action.payload.data._id) {
           state.selectedTest = action.payload.data;
