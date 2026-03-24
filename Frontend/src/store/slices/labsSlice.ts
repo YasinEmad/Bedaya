@@ -145,6 +145,7 @@ export interface CreateLabTestData {
   patientName: string;
   testDate?: string;
   testType: 'blood' | 'urine' | 'stool' | 'cr_urea';
+  status?: 'pending' | 'completed' | 'in' | 'out';
   CBC?: LabTest['CBC'];
   liverFunction?: LabTest['liverFunction'];
   coagulation?: LabTest['coagulation'];
@@ -387,6 +388,10 @@ const labsSlice = createSlice({
         const recentIndex = state.recentTests.findIndex(t => t._id === action.payload.data._id);
         if (recentIndex !== -1) {
           state.recentTests[recentIndex] = action.payload.data;
+        }
+        const bloodIndex = state.bloodTests.findIndex(t => t._id === action.payload.data._id);
+        if (bloodIndex !== -1) {
+          state.bloodTests[bloodIndex] = action.payload.data;
         }
         if (state.selectedTest && state.selectedTest._id === action.payload.data._id) {
           state.selectedTest = action.payload.data;

@@ -123,6 +123,25 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
     const [crp, setCrp] = useState("");
     const [notes, setNotes] = useState("");
     const [technician, setTechnician] = useState("");
+    const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+
+    const handleStatusClick = async (test: LabTest) => {
+        try {
+            setUpdatingStatusId(test._id);
+            const newStatus: LabTest['status'] = test.status === 'in' ? 'out' : 'in';
+            await dispatch(updateLabTest({ 
+                id: test._id, 
+                testData: { status: newStatus } 
+            })).unwrap();
+            toast.success(`Status updated to ${newStatus.toUpperCase()}`);
+        } catch (error) {
+            toast.error('Failed to update status', {
+                description: error instanceof Error ? error.message : 'Unknown error occurred',
+            });
+        } finally {
+            setUpdatingStatusId(null);
+        }
+    };
 
     const handleSubmitBlood = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -454,7 +473,20 @@ export function BloodLabsModule({ activeLabSection }: BloodLabsModuleProps) {
                 key: 'status',
                 header: 'Status',
                 width: 'w-20 text-center',
-                render: (value: LabTest['status']) => renderLabStatusBadge(value)
+                render: (value: LabTest['status'], row: LabTest) => (
+                    <button
+                        onClick={() => handleStatusClick(row)}
+                        disabled={updatingStatusId === row._id}
+                        className="cursor-pointer hover:opacity-80 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Click to toggle between In/Out"
+                    >
+                        {updatingStatusId === row._id ? (
+                            <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                        ) : (
+                            renderLabStatusBadge(value)
+                        )}
+                    </button>
+                )
             },
             {
                 key: 'actions',
