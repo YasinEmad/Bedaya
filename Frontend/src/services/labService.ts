@@ -63,6 +63,24 @@ class LabService {
   async fetchBloodLabTests(): Promise<{ data: LabTest[] }> {
     return this.request('/labs/recent?type=blood');
   }
+
+  /**
+   * Fetch lab statistics for dashboard
+   * Returns counts of each lab test type
+   */
+  async getDashboardLabStats(): Promise<{
+    data: {
+      totalTests: number;
+      breakdown: {
+        blood: number;
+        urine: number;
+        stool: number;
+        cr_urea: number;
+      };
+    };
+  }> {
+    return this.request('/labs/statistics');
+  }
 }
 
 export const labService = new LabService();

@@ -10,7 +10,7 @@ export interface ClinicDefinition {
   avgTime: string;
 }
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = '/api';
 
 export const clinicService = {
   /**
@@ -96,6 +96,33 @@ export const clinicService = {
    * Fetch clinic statistics
    */
   async getClinicStatistics() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/clinics/statistics`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch clinic statistics: ${response.statusText}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching clinic statistics:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Fetch dashboard clinic referrals statistics
+   * Returns formatted data for dashboard display
+   */
+  async getDashboardClinicStats(): Promise<{
+    data: {
+      totalVisits: number;
+      breakdown: Array<{
+        clinic: string;
+        total: number;
+      }>;
+    };
+  }> {
     try {
       const response = await fetch(`${API_BASE_URL}/clinics/statistics`);
       
